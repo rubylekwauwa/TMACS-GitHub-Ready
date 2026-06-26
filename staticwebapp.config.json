@@ -1,0 +1,32 @@
+{
+  "routes": [
+    {
+      "route": "/cas-login",
+      "rewrite": "/api/cas-login"
+    },
+    {
+      "route": "/cas-callback",
+      "rewrite": "/api/cas-callback"
+    },
+    {
+      "route": "/cas-logout",
+      "rewrite": "/api/cas-logout"
+    },
+    {
+      "route": "/",
+      "rewrite": "/api/auth-guard"
+    },
+    {
+      "route": "/index.html",
+      "rewrite": "/api/auth-guard"
+    }
+  ],
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+  },
+  "mimeTypes": {
+    ".mp3": "audio/mpeg",
+    ".png": "image/png"
+  }
+}
