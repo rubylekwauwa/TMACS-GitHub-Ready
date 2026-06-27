@@ -1,24 +1,16 @@
 {
-  "routes": [
+  "bindings": [
     {
-      "route": "/cas-login",
-      "rewrite": "/api/cas-login"
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": ["get"]
     },
     {
-      "route": "/cas-callback",
-      "rewrite": "/api/cas-callback"
-    },
-    {
-      "route": "/cas-logout",
-      "rewrite": "/api/cas-logout"
+      "type": "http",
+      "direction": "out",
+      "name": "res"
     }
-  ],
-  "globalHeaders": {
-    "X-Content-Type-Options": "nosniff",
-    "Referrer-Policy": "strict-origin-when-cross-origin"
-  },
-  "mimeTypes": {
-    ".mp3": "audio/mpeg",
-    ".png": "image/png"
-  }
+  ]
 }
