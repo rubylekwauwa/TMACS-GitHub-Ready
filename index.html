@@ -107,6 +107,22 @@ v1.0 — Initial T-MACS Mentor Map Prototype
 <!-- TMACS Mentor Network v2.0 | Updated scheduling + matching polish -->
 <html lang="en">
 <head>
+<script>
+(async function () {
+  try {
+    const response = await fetch("/api/me", {
+      credentials: "include"
+    });
+
+    if (!response.ok) {
+      window.location.href = "/cas-login";
+    }
+  } catch (e) {
+    window.location.href = "/cas-login";
+  }
+})();
+</script>
+    
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
