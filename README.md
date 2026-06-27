@@ -26,3 +26,4 @@ Optional overrides are already set to Yale defaults:
 Once Azure gives you the website URL, the CAS service/callback URL is:
 
 `https://<your-site>.azurestaticapps.net/cas-callback`
+
