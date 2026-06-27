@@ -1,18 +1,4 @@
 {
-  "routes": [
-    {
-      "route": "/cas-login",
-      "rewrite": "/api/cas-login"
-    },
-    {
-      "route": "/cas-callback",
-      "rewrite": "/api/cas-callback"
-    },
-    {
-      "route": "/cas-logout",
-      "rewrite": "/api/cas-logout"
-    }
-  ],
   "navigationFallback": {
     "rewrite": "/index.html"
   },
