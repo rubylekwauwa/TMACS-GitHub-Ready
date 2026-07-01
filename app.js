@@ -1944,4 +1944,38 @@ function applyVoiceTourCue(cueName) {
       scrollMobileTourTarget("#detailPanel");
       break;
   }
+}function scrollMobileTourTarget(selector) {
+  if (window.innerWidth > 768) return;
+
+  const target = document.querySelector(selector);
+  if (!target) return;
+
+  const y = target.getBoundingClientRect().top + window.pageYOffset - 12;
+
+  window.scrollTo({
+    top: Math.max(y, 0),
+    behavior: "smooth"
+  });
 }
+
+const originalApplyVoiceTourCue = applyVoiceTourCue;
+
+applyVoiceTourCue = function(cueName) {
+  originalApplyVoiceTourCue(cueName);
+
+  if (cueName === "find-search") {
+    scrollMobileTourTarget(".match-box");
+  }
+
+  if (cueName === "find-browse") {
+    scrollMobileTourTarget(".browse-title");
+  }
+
+  if (cueName === "find-map" || cueName === "map-access") {
+    scrollMobileTourTarget(".map-shell");
+  }
+
+  if (cueName === "schedule" || cueName === "schedule-button" || cueName === "connect") {
+    scrollMobileTourTarget("#detailPanel");
+  }
+};
