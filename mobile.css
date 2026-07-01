@@ -40,7 +40,7 @@
     grid-template-columns: 54px 1fr 36px;
     gap: 12px;
     align-items: start;
-    margin-bottom: 24px;
+    margin-bottom: 18px;
   }
 
   .mobile-home-shield {
@@ -79,8 +79,8 @@
 
   .mobile-home-description {
     max-width: 330px;
-    margin: 0 0 24px;
-    font-size: .92rem;
+    margin: 0 0 16px;
+    font-size: .88rem;
     line-height: 1.45;
     font-weight: 600;
     color: rgba(255,255,255,.96);
@@ -88,10 +88,10 @@
 
   .mobile-home-headline {
     font-family: 'Libre Baskerville', serif;
-    font-size: 2.05rem;
-    line-height: 1.08;
+    font-size: 1.85rem;
+    line-height: 1.05;
     font-weight: 700;
-    margin: 0 0 14px;
+    margin: 0 0 10px;
     text-shadow: 0 5px 20px rgba(0,0,0,.5);
   }
 
@@ -100,29 +100,29 @@
     height: 4px;
     background: #ffd54f;
     border-radius: 999px;
-    margin: 0 0 22px;
+    margin: 0 0 14px;
   }
 
   .mobile-home-sub {
-    font-size: .95rem;
+    font-size: .90rem;
     line-height: 1.45;
     font-weight: 700;
-    margin: 0 0 24px;
+    margin: 0 0 8px;
     color: rgba(255,255,255,.96);
   }
 
   .mobile-home-buttons {
     display: grid;
-    gap: 12px;
-    margin-top: 10px;
+    gap: 10px;
+    margin-top: -14px auto 0;
   }
 
   .mobile-home-card {
     width: 100%;
-    min-height: 88px;
+    min-height: 72px;
     border: 0;
-    border-radius: 18px !important;
-    padding: 14px 16px !important;
+    border-radius: 20px !important;
+    padding: 11px 16px !important;
     display: grid !important;
     grid-template-columns: 58px 1fr 24px;
     gap: 14px;
@@ -143,8 +143,8 @@
   }
 
   .mobile-home-icon {
-    width: 52px;
-    height: 52px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background: rgba(255,255,255,.55);
     display: flex;
@@ -163,14 +163,14 @@
 
   .mobile-home-card-text strong {
     display: block;
-    font-size: 1.05rem;
+    font-size: 0.92rem;
     line-height: 1.1;
     margin-bottom: 5px;
   }
 
   .mobile-home-card-text small {
     display: block;
-    font-size: .78rem;
+    font-size: .68rem;
     line-height: 1.32;
     font-weight: 700;
   }
