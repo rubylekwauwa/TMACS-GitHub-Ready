@@ -1313,6 +1313,98 @@ a.profile-link {
     height: auto;
   }
 }
+@media (max-width: 768px) {
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-size: 16px;
+  }
+
+  .banner {
+    padding: 28px 18px !important;
+    text-align: left !important;
+  }
+
+  .banner h1 {
+    font-size: 2rem !important;
+    line-height: 1.15 !important;
+  }
+
+  .container,
+  .main-content {
+    display: block !important;
+    width: 100% !important;
+    padding: 14px !important;
+  }
+
+  .sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    position: static !important;
+    margin-bottom: 18px !important;
+  }
+
+  .match-box,
+  .mentor-card {
+    border-radius: 18px !important;
+    padding: 16px !important;
+  }
+
+  input,
+  select,
+  button {
+    width: 100% !important;
+    min-height: 46px !important;
+    font-size: 16px !important;
+    border-radius: 12px !important;
+  }
+
+  button {
+    min-height: 48px !important;
+  }
+
+  .map-container,
+  #map {
+    width: 100% !important;
+    height: 280px !important;
+    max-height: 280px !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+  }
+
+  .mentor-card img,
+  .mentor-photo {
+    width: 72px !important;
+    height: 72px !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+  }
+
+  .modal,
+  .profile-modal,
+  .mentor-modal {
+    width: 94vw !important;
+    max-width: 94vw !important;
+    max-height: 86vh !important;
+    overflow-y: auto !important;
+    border-radius: 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner h1 {
+    font-size: 1.75rem !important;
+  }
+
+  .map-container,
+  #map {
+    height: 245px !important;
+  }
+}
+    
 </style>
 </head>
 
