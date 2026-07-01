@@ -18,23 +18,23 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="mobile-home-menu">☰</div>
     </div>
 
-    <div class="mobile-home-content">
+ <div class="mobile-home-content">
+  <div class="mobile-home-description">
+    Connecting Yale Psychiatry trainees with alumni mentors across the United States and beyond.
+  </div>
 
-    <div class="mobile-home-description">
-        Connecting Yale Psychiatry trainees with alumni mentors across the United States (and beyond).
-    </div>
+  <div class="mobile-home-headline">
+    Find mentors<br>who can help<br>you thrive. ✨
+  </div>
 
-    <div class="mobile-home-headline">
-        Find mentors<br>who can help<br>you thrive. ✨
-    </div>
+  <div class="mobile-home-line"></div>
 
-    <div class="mobile-home-line"></div>
-
-    <div class="mobile-home-sub">
-        Build relationships.<br>
-        Receive guidance.<br>
-        Explore your future.
-    </div>
+  <div class="mobile-home-sub">
+    Build relationships.<br>
+    Receive guidance.<br>
+    Explore your future.
+  </div>
+</div>
 
 </div>
 

@@ -15,31 +15,31 @@ body.mobile-home-hidden #mobileHome{
   inset:0;
   z-index:999999;
   box-sizing:border-box;
-  padding:16px 18px 14px;
+  padding:22px 26px 26px;
   overflow:hidden;
   color:white;
 
   background:
     linear-gradient(
       90deg,
-      rgba(0,38,85,.92) 0%,
-      rgba(0,38,85,.78) 43%,
-      rgba(0,38,85,.32) 72%,
-      rgba(0,38,85,.08) 100%
+      rgba(0,35,80,.94) 0%,
+      rgba(0,35,80,.82) 38%,
+      rgba(0,35,80,.50) 64%,
+      rgba(0,35,80,.22) 100%
     ),
     url("https://upload.wikimedia.org/wikipedia/commons/7/72/Harkness_Tower_Highsmith.jpg");
 
   background-size:cover;
-  background-position:25% center;
+  background-position:10% center;
   background-repeat:no-repeat;
 }
 
 .mobile-home-top{
   display:grid;
-  grid-template-columns:44px 1fr 28px;
-  gap:10px;
+  grid-template-columns:46px 1fr 30px;
+  gap:12px;
   align-items:start;
-  margin-bottom:14px;
+  margin-bottom:34px;
 }
 
 .mobile-home-shield{
@@ -47,7 +47,7 @@ body.mobile-home-hidden #mobileHome{
   border-radius:5px;
   padding:4px 3px;
   font-family:'Libre Baskerville',serif;
-  font-size:.82rem;
+  font-size:.86rem;
   font-weight:700;
   line-height:1;
   text-align:center;
@@ -55,10 +55,10 @@ body.mobile-home-hidden #mobileHome{
 
 .mobile-home-logo{
   font-family:'Libre Baskerville',serif;
-  font-size:1.55rem;
+  font-size:1.78rem;
   font-weight:700;
-  line-height:1.05;
-  margin-bottom:5px;
+  line-height:1.08;
+  margin-bottom:7px;
   text-shadow:0 5px 18px rgba(0,0,0,.45);
 }
 
@@ -83,19 +83,19 @@ body.mobile-home-hidden #mobileHome{
 }
 
 .mobile-home-description{
-  font-size:.78rem;
-  line-height:1.38;
+  font-size:.92rem;
+  line-height:1.55;
   font-weight:750;
-  margin-bottom:18px;
+  margin-bottom:36px;
   color:rgba(255,255,255,.96);
 }
 
 .mobile-home-headline{
   font-family:'Libre Baskerville',serif;
-  font-size:1.78rem;
-  line-height:1.08;
+  font-size:1.4rem;
+  line-height:1.1;
   font-weight:700;
-  margin-bottom:9px;
+  margin-bottom:25px;
   text-shadow:0 5px 20px rgba(0,0,0,.55);
 }
 
@@ -104,39 +104,45 @@ body.mobile-home-hidden #mobileHome{
   height:4px;
   border-radius:999px;
   background:#FFD965;
-  margin-bottom:14px;
+  margin-bottom:26px;
 }
 
 .mobile-home-sub{
   font-size:.82rem;
   line-height:1.35;
   font-weight:800;
-  margin-bottom:16px;
+  margin-bottom:36px;
 }
 
 .mobile-home-buttons{
   display:grid;
-  gap:10px;
-  width:86%;
+  gap:20px;
+  width:90%;
   margin:0 auto;
   position:relative;
   z-index:3;
 }
 
 .mobile-home-card{
-  width:100%;
-  min-height:68px;
-  border:none;
-  border-radius:18px !important;
-  display:grid !important;
-  grid-template-columns:42px 1fr 22px;
-  align-items:center;
-  gap:12px;
-  padding:10px 14px !important;
-  box-sizing:border-box;
-  margin:0 !important;
-  text-align:left !important;
-  box-shadow:0 12px 26px rgba(0,0,0,.22);
+
+    width:100%;
+
+    min-height:80px;
+    height:80px;
+
+    display:grid;
+    grid-template-columns:46px 1fr 22px;
+    align-items:center;
+    gap:14px;
+
+    padding:13px 18px;
+
+    border:none;
+    border-radius:20px;
+
+    box-sizing:border-box;
+
+    box-shadow:0 12px 24px rgba(0,0,0,.22);
 }
 
 .mobile-home-primary{
@@ -150,13 +156,13 @@ body.mobile-home-hidden #mobileHome{
 }
 
 .mobile-home-icon{
-  width:40px;
-  height:40px;
+  width:38px;
+  height:38px;
   border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:1.08rem;
+  font-size:1rem;
   background:rgba(255,255,255,.55);
 }
 
@@ -166,16 +172,16 @@ body.mobile-home-hidden #mobileHome{
 
 .mobile-home-card-text strong{
   display:block;
-  font-size:.88rem;
+  font-size:.95rem;
   line-height:1.05;
   margin-bottom:3px;
 }
 
 .mobile-home-card-text small{
   display:block;
-  font-size:.62rem;
-  line-height:1.18;
-  font-weight:750;
+  font-size:.68rem;
+  line-height:1.2;
+  font-weight:600;
 }
 
 .mobile-home-arrow{
