@@ -1,11 +1,5 @@
-/* ===========================================================
-   T-MACS Mobile Launch Screen
-   =========================================================== */
-
 @media (min-width:769px){
-  #mobileHome{
-    display:none !important;
-  }
+  #mobileHome{ display:none !important; }
 }
 
 @media (max-width:768px){
@@ -21,29 +15,29 @@ body.mobile-home-hidden #mobileHome{
   inset:0;
   z-index:999999;
   box-sizing:border-box;
-  padding:24px 20px 22px;
+  padding:16px 18px 14px;
   overflow:hidden;
   color:white;
 
   background:
     linear-gradient(
-      180deg,
-      rgba(0,45,100,.12),
-      rgba(0,35,85,.42) 45%,
-      rgba(0,25,70,.74) 78%,
-      rgba(0,18,45,.88) 100%
+      90deg,
+      rgba(0,38,85,.92) 0%,
+      rgba(0,38,85,.78) 43%,
+      rgba(0,38,85,.32) 72%,
+      rgba(0,38,85,.08) 100%
     ),
     url("https://upload.wikimedia.org/wikipedia/commons/7/72/Harkness_Tower_Highsmith.jpg");
 
   background-size:cover;
-  background-position:72% center;
+  background-position:25% center;
   background-repeat:no-repeat;
 }
 
 .mobile-home-top{
   display:grid;
-  grid-template-columns:54px 1fr 32px;
-  gap:12px;
+  grid-template-columns:44px 1fr 28px;
+  gap:10px;
   align-items:start;
   margin-bottom:14px;
 }
@@ -51,100 +45,98 @@ body.mobile-home-hidden #mobileHome{
 .mobile-home-shield{
   border:2px solid white;
   border-radius:5px;
-  padding:5px 3px;
+  padding:4px 3px;
   font-family:'Libre Baskerville',serif;
-  font-size:.95rem;
+  font-size:.82rem;
   font-weight:700;
   line-height:1;
   text-align:center;
 }
 
 .mobile-home-logo{
-  color:#fff;
   font-family:'Libre Baskerville',serif;
-  font-size:2rem;
+  font-size:1.55rem;
   font-weight:700;
-  line-height:1.08;
+  line-height:1.05;
+  margin-bottom:5px;
   text-shadow:0 5px 18px rgba(0,0,0,.45);
-  margin-bottom:7px;
 }
 
 .mobile-home-tag{
   color:#FFD965;
   font-weight:900;
-  font-size:.74rem;
-  letter-spacing:.02em;
+  font-size:.62rem;
   line-height:1.2;
 }
 
 .mobile-home-menu{
-  font-size:1.9rem;
+  font-size:1.55rem;
   font-weight:900;
-  line-height:1;
   text-align:right;
+  line-height:1;
+}
+
+.mobile-home-content{
+  max-width:56%;
+  position:relative;
+  z-index:2;
 }
 
 .mobile-home-description{
+  font-size:.78rem;
+  line-height:1.38;
+  font-weight:750;
+  margin-bottom:18px;
   color:rgba(255,255,255,.96);
-  font-size:.9rem;
-  line-height:1.45;
-  font-weight:800;
-  max-width:350px;
-  margin-bottom:16px;
 }
 
 .mobile-home-headline{
-  color:white;
   font-family:'Libre Baskerville',serif;
-  font-size:2.25rem;
+  font-size:1.78rem;
   line-height:1.08;
   font-weight:700;
-  margin-bottom:8px;
+  margin-bottom:9px;
   text-shadow:0 5px 20px rgba(0,0,0,.55);
 }
 
 .mobile-home-line{
-  width:54px;
+  width:46px;
   height:4px;
   border-radius:999px;
   background:#FFD965;
-  margin-bottom:15px;
+  margin-bottom:14px;
 }
 
 .mobile-home-sub{
-  color:white;
-  font-size:.98rem;
-  line-height:1.45;
+  font-size:.82rem;
+  line-height:1.35;
   font-weight:800;
-  margin-bottom:18px;
+  margin-bottom:16px;
 }
 
 .mobile-home-buttons{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:14px;
-
-    width:86%;
-    padding:0 12px;
-    box-sizing:border-box;
+  display:grid;
+  gap:10px;
+  width:86%;
+  margin:0 auto;
+  position:relative;
+  z-index:3;
 }
 
 .mobile-home-card{
   width:100%;
-  max-width:360px;
-  min-height:74px;
+  min-height:68px;
   border:none;
-  border-radius:22px !important;
+  border-radius:18px !important;
   display:grid !important;
-  grid-template-columns:54px 1fr 28px;
+  grid-template-columns:42px 1fr 22px;
   align-items:center;
-  gap:14px;
-  padding:10px 16px !important;
+  gap:12px;
+  padding:10px 14px !important;
+  box-sizing:border-box;
   margin:0 !important;
   text-align:left !important;
-  box-sizing:border-box;
-  box-shadow:0 14px 30px rgba(0,0,0,.24);
+  box-shadow:0 12px 26px rgba(0,0,0,.22);
 }
 
 .mobile-home-primary{
@@ -158,13 +150,13 @@ body.mobile-home-hidden #mobileHome{
 }
 
 .mobile-home-icon{
-  width:50px;
-  height:50px;
+  width:40px;
+  height:40px;
   border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:1.35rem;
+  font-size:1.08rem;
   background:rgba(255,255,255,.55);
 }
 
@@ -174,21 +166,21 @@ body.mobile-home-hidden #mobileHome{
 
 .mobile-home-card-text strong{
   display:block;
-  font-size:1rem;
-  line-height:1.1;
-  margin-bottom:5px;
+  font-size:.88rem;
+  line-height:1.05;
+  margin-bottom:3px;
 }
 
 .mobile-home-card-text small{
   display:block;
-  font-size:.76rem;
-  line-height:1.25;
+  font-size:.62rem;
+  line-height:1.18;
   font-weight:750;
 }
 
 .mobile-home-arrow{
   justify-self:end;
-  font-size:2rem;
+  font-size:1.6rem;
   line-height:1;
   font-weight:600;
   color:inherit;
