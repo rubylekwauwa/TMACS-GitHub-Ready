@@ -480,15 +480,22 @@ function resetResultsHeader() {
 }
 
 function setMatchResultsHeader(ranked) {
+  const closeMatches = ranked.filter(m => (m.matchPercent || 0) >= 75);
+
+  const excellentCount = closeMatches.length;
+
   document.getElementById("resultsTitle").textContent = "✨ Your Personalized Mentor Recommendations";
   document.getElementById("resultsHelp").textContent = "Ranked for you based on the interests you selected.";
 
-  const closeMatches = ranked.filter(m => (m.matchPercent || 0) >= 75).length;
   const matchStatus = document.getElementById("matchStatus");
-  matchStatus.textContent = closeMatches > 0
-    ? `We found ${closeMatches} mentor${closeMatches === 1 ? "" : "s"} who closely match what you're looking for.`
+
+  matchStatus.textContent = excellentCount > 0
+    ? `We found ${excellentCount} strong mentor match${excellentCount === 1 ? "" : "es"} for you.`
     : "We ranked the mentor network based on what you selected.";
+
   matchStatus.classList.add("visible");
+
+  updateStats(closeMatches.length > 0 ? closeMatches : ranked, "match");
 }
 
 function updateStats(list, mode = "browse") {
@@ -500,9 +507,10 @@ function updateStats(list, mode = "browse") {
   if (mode === "match") {
     statsText = `${visibleMentors} alumni mentors ranked for your personalized match`;
   } else {
-    statsText = visibleMentors === totalMentors
-      ? `${totalMentors} alumni mentors in the T-MACS network`
-      : `${visibleMentors} of ${totalMentors} alumni mentors match your search`;
+ statsText =
+  visibleMentors === 1
+    ? "✨ 1 Personalized Mentor Match"
+    : `✨ ${visibleMentors} Personalized Mentor Matches`;
   }
 
   document.getElementById("stats").innerText = statsText;
@@ -513,7 +521,9 @@ function showMentor(m) {
   selectedMentorName = m.name;
 
   document.getElementById("detailContent").innerHTML = `
-    <div class="profile-hero">
+    <button class="mobile-back-to-results" type="button" onclick="goBackToMobileResults()">← Back to matches</button>
+
+<div class="profile-hero">
       <img class="profile-photo-large" src="${m.image}" alt="Photo of ${m.name}">
       <div>
         <h2>${m.name}</h2>
@@ -1195,8 +1205,8 @@ function runMatch() {
       return b.matchPercent - a.matchPercent || b.matchScore - a.matchScore || a.name.localeCompare(b.name);
     });
 
-  setMatchResultsHeader(ranked);
-  render(ranked, "match");
+render(ranked, "match");
+setMatchResultsHeader(ranked);
 }
 
 document.getElementById("search").addEventListener("input", () => refresh(true));
@@ -1760,38 +1770,6 @@ function scrollToMobileSection(section) {
   }
 }
 
-(function enhanceMobileMatchExperience() {
-  const matchBox = document.querySelector(".match-box");
-  const matchButton = matchBox ? matchBox.querySelector("button") : null;
-
-  if (!matchBox || !matchButton) return;
-
-  const loader = document.createElement("div");
-  loader.className = "mobile-matching-loader";
-  loader.textContent = "✨ Finding your best mentor matches...";
-  matchBox.appendChild(loader);
-
-  const originalClick = matchButton.onclick;
-
-  matchButton.onclick = function () {
-    loader.classList.add("visible");
-
-    setTimeout(() => {
-      if (typeof originalClick === "function") {
-        originalClick.call(matchButton);
-      } else if (typeof runMatch === "function") {
-        runMatch();
-      }
-
-      loader.classList.remove("visible");
-
-      const results = document.querySelector("#mentorList");
-      if (results) {
-        results.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }, 900);
-  };
-})();
 (function makeMobileMentorCardsOpenProfile() {
   document.addEventListener("click", function (event) {
     const card = event.target.closest(".mentor-card");

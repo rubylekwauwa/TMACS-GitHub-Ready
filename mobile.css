@@ -318,17 +318,7 @@
     box-shadow: 0 10px 24px rgba(0, 53, 107, 0.22);
   }
 
-  .mobile-matching-loader {
-    display: none;
-    margin-top: 16px;
-    padding: 18px;
-    border-radius: 18px;
-    background: #00356b;
-    color: white;
-    text-align: center;
-    font-weight: 800;
-  }
-
+  
   .mobile-matching-loader.visible {
     display: block;
     animation: pulseMatch 1s ease-in-out infinite alternate;
@@ -394,5 +384,255 @@
     box-shadow: 0 0 0 8px rgba(249, 199, 79, 0.28),
                 0 14px 36px rgba(0, 53, 107, 0.28) !important;
     transition: box-shadow 0.25s ease, outline 0.25s ease;
+  }
+}@media (max-width: 768px) {
+  body {
+    background:
+      radial-gradient(circle at top, rgba(0, 53, 107, 0.10), transparent 32%),
+      #f3f7fb;
+  }
+
+  .sidebar,
+  #detailPanel,
+  .map-shell {
+    animation: mobileCardIn 0.35s ease both;
+  }
+
+  @keyframes mobileCardIn {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    height: 78px !important;
+    border-radius: 28px !important;
+    bottom: 12px !important;
+    width: calc(100% - 28px) !important;
+    background: rgba(255,255,255,0.98) !important;
+  }
+
+  .mobile-bottom-nav button {
+    position: relative;
+    font-size: 1.15rem !important;
+  }
+
+  .mobile-bottom-nav button::after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    width: 34px;
+    height: 4px;
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  .mobile-bottom-nav button:hover::after,
+  .mobile-bottom-nav button:focus::after,
+  .mobile-bottom-nav button:active::after {
+    background: #00356b;
+  }
+
+  .mobile-bottom-nav button:hover,
+  .mobile-bottom-nav button:focus,
+  .mobile-bottom-nav button:active {
+    background: #eef4fa !important;
+    color: #00356b !important;
+  }
+}
+@media (max-width: 768px) {
+  body[data-mobile-view] {
+    padding-bottom: 96px !important;
+  }
+
+  body[data-mobile-view] .container {
+    display: block !important;
+    padding: 14px 14px 105px !important;
+  }
+
+  body[data-mobile-view] .sidebar,
+  body[data-mobile-view] #detailPanel,
+  body[data-mobile-view] .map-shell {
+    display: none !important;
+  }
+
+  body[data-mobile-view="home"] .sidebar,
+  body[data-mobile-view="match"] .sidebar,
+  body[data-mobile-view="browse"] .sidebar,
+  body[data-mobile-view="guide"] #detailPanel,
+  body[data-mobile-view="map"] .map-shell {
+    display: block !important;
+    min-height: calc(100vh - 115px) !important;
+  }
+
+  body[data-mobile-view="match"] .browse-title,
+  body[data-mobile-view="match"] .browse-help,
+  body[data-mobile-view="match"] #search,
+  body[data-mobile-view="match"] #specialtyFilter,
+  body[data-mobile-view="match"] #focusFilter,
+  body[data-mobile-view="match"] #mentorList,
+  body[data-mobile-view="match"] #stats,
+  body[data-mobile-view="match"] #matchStatus {
+    display: none !important;
+  }
+
+  body[data-mobile-view="browse"] .match-box {
+    display: none !important;
+  }
+
+  body[data-mobile-view="map"] .map-shell {
+    height: calc(100vh - 115px) !important;
+  }
+
+  body.mobile-matching .match-box::after {
+    content: "✨ Finding your best mentor matches...";
+    display: block;
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 18px;
+    background: #00356b;
+    color: white;
+    font-weight: 800;
+    animation: mobilePulse 0.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes mobilePulse {
+    from { opacity: 0.75; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .mobile-bottom-nav button.mobile-active {
+    background: #eef4fa !important;
+    color: #00356b !important;
+  }
+
+  .mobile-bottom-nav button.mobile-active::after {
+    background: #00356b !important;
+  }
+}@media (max-width: 768px) {
+  header {
+    position: sticky !important;
+    top: 0;
+    z-index: 99998;
+    padding: 10px 16px 12px !important;
+    border-radius: 0 0 20px 20px !important;
+    background: rgba(0, 53, 107, 0.95) !important;
+    backdrop-filter: blur(16px);
+  }
+
+  header h1 {
+    font-size: 1.25rem !important;
+    margin: 0 0 3px 0 !important;
+    line-height: 1.1;
+  }
+
+  header p {
+    font-size: 0.78rem !important;
+    margin: 0 !important;
+    line-height: 1.25;
+    opacity: 0.95;
+  }
+
+  .network-note {
+    display: none !important;
+  }
+}@media (max-width: 768px) {
+  header {
+    position: sticky !important;
+    top: 0;
+    z-index: 99998;
+    padding: 18px 18px 20px !important;
+    border-radius: 0 0 24px 24px !important;
+    background: rgba(0, 53, 107, 0.96) !important;
+    backdrop-filter: blur(16px);
+    transition: all 0.25s ease;
+  }
+
+  header h1 {
+    font-size: 1.65rem !important;
+    margin: 0 0 6px 0 !important;
+    line-height: 1.1;
+    transition: all 0.25s ease;
+  }
+
+  header h1::after {
+    content: "Teacher • Mentor • Advisor • Coach • Sponsor";
+    display: block;
+    margin-top: 6px;
+    font-family: Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #b7ddff;
+  }
+
+  header p {
+    font-size: 0.9rem !important;
+    margin: 0 !important;
+    line-height: 1.35;
+    transition: all 0.25s ease;
+  }
+
+  .network-note {
+    display: none !important;
+  }
+
+  body.header-condensed header {
+    padding: 10px 16px 12px !important;
+    border-radius: 0 0 18px 18px !important;
+  }
+
+  body.header-condensed header h1 {
+    font-size: 1.25rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  body.header-condensed header p {
+    display: none !important;
+  }
+
+  body.header-condensed header h1::after {
+    font-size: 0.64rem;
+    margin-top: 4px;
+  }
+}
+@media (max-width: 768px) {
+  .mobile-back-to-results {
+    width: auto !important;
+    min-height: 40px !important;
+    margin-bottom: 14px;
+    padding: 8px 12px !important;
+    border-radius: 999px !important;
+    background: #eef4fa !important;
+    color: #00356b !important;
+    border: 1px solid #d7e5f2 !important;
+    font-weight: 800;
+  }
+}@media (max-width: 768px) {
+  body[data-mobile-view="profile"] #detailPanel {
+    display: block !important;
+    min-height: calc(100vh - 115px) !important;
+  }
+
+  body[data-mobile-view="profile"] .mobile-bottom-nav button {
+    background: transparent !important;
+    color: #344054 !important;
+  }
+
+  .mobile-back-to-results {
+    width: auto !important;
+    min-height: 40px !important;
+    margin-bottom: 14px;
+    padding: 8px 12px !important;
+    border-radius: 999px !important;
+    background: #eef4fa !important;
+    color: #00356b !important;
+    border: 1px solid #d7e5f2 !important;
+    font-weight: 800;
   }
 }
