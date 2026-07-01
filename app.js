@@ -1726,20 +1726,222 @@ function highlightSelectedCard() {
     }
   });
 }
-function scrollToMobileSection(section) {
-  const targets = {
-    match: document.querySelector(".match-box"),
-    browse: document.querySelector("#search"),
-    map: document.querySelector(".map-shell"),
-    tutorial: document.querySelector("#detailPanel")
-  };
 
-  const target = targets[section];
+function scrollToMobileSection(section) {
+  let target;
+
+  if (section === "match") {
+    target = document.querySelector(".sidebar");
+  }
+
+  if (section === "browse") {
+    target = document.querySelector(".browse-title");
+  }
+
+  if (section === "map") {
+    target = document.querySelector(".map-shell");
+  }
+
+  if (section === "tutorial") {
+
+    restoreTutorialPanel();
+
+    target = document.querySelector("#detailPanel");
+
+}
 
   if (target) {
-    target.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
+    setTimeout(() => {
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 100);
+  }
+}
+
+(function enhanceMobileMatchExperience() {
+  const matchBox = document.querySelector(".match-box");
+  const matchButton = matchBox ? matchBox.querySelector("button") : null;
+
+  if (!matchBox || !matchButton) return;
+
+  const loader = document.createElement("div");
+  loader.className = "mobile-matching-loader";
+  loader.textContent = "✨ Finding your best mentor matches...";
+  matchBox.appendChild(loader);
+
+  const originalClick = matchButton.onclick;
+
+  matchButton.onclick = function () {
+    loader.classList.add("visible");
+
+    setTimeout(() => {
+      if (typeof originalClick === "function") {
+        originalClick.call(matchButton);
+      } else if (typeof runMatch === "function") {
+        runMatch();
+      }
+
+      loader.classList.remove("visible");
+
+      const results = document.querySelector("#mentorList");
+      if (results) {
+        results.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 900);
+  };
+})();
+(function makeMobileMentorCardsOpenProfile() {
+  document.addEventListener("click", function (event) {
+    const card = event.target.closest(".mentor-card");
+
+    if (!card) return;
+    if (window.innerWidth > 768) return;
+
+    setTimeout(() => {
+      const profilePanel = document.querySelector("#detailPanel");
+
+      if (profilePanel) {
+        profilePanel.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+    }, 250);
+  });
+})();
+function restoreTutorialPanel() {
+  const detailContent = document.querySelector("#detailContent");
+
+  if (!detailContent) return;
+
+  detailContent.innerHTML = `
+    <div class="welcome-card">
+      <h2>👋 Welcome to T-MACS</h2>
+      <p class="welcome-subtitle">Finding a mentor is as easy as 1–2–3.</p>
+
+      <div class="welcome-step">
+        <span class="step-number">1</span>
+        <div>
+          <strong>Find</strong>
+          <p>Browse mentors using the searchable mentor list by specialty, location, or mentorship interest, or explore mentors visually on the interactive map.</p>
+        </div>
+      </div>
+
+      <div class="welcome-step">
+        <span class="step-number">2</span>
+        <div>
+          <strong>Schedule</strong>
+          <p>Use your mentor's preferred scheduling option to find a time to connect.</p>
+        </div>
+      </div>
+
+      <div class="welcome-step">
+        <span class="step-number">3</span>
+        <div>
+          <strong>Connect</strong>
+          <p>Build meaningful mentoring relationships that support your growth throughout residency and beyond.</p>
+        </div>
+      </div>
+
+      <div class="ready-box">
+        <strong>Ready to get started?</strong>
+        <p>Select any mentor from the list or map to view their full profile.</p>
+        <button class="voice-tour-button" type="button" onclick="startWelcomeTourWithVoice()">▶ Start Tour with Voice</button>
+        <button class="replay-tour-button" type="button" onclick="replayWelcomeTour()">▶ Replay Tour</button>
+        <div class="tour-audio-note">Voice starts after you press the voice tour button.</div>
+      </div>
+    </div>
+  `;
+}
+function startWelcomeTourWithVoice() {
+  if (typeof renderWelcomePanel === "function") {
+    renderWelcomePanel();
+  }
+
+  setTimeout(() => {
+    const panel = document.querySelector("#detailPanel");
+    if (panel) {
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    if (typeof runWelcomeTourPreview === "function") {
+      runWelcomeTourPreview(true, true);
+    }
+  }, 150);
+}
+function scrollMobileTourTarget(selector) {
+  if (window.innerWidth > 768) return;
+
+  const target = document.querySelector(selector);
+  if (!target) return;
+
+  target.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+function applyVoiceTourCue(cueName) {
+  const detailContent = document.getElementById("detailContent");
+  const step1 = document.getElementById("welcomeStep1");
+  const step2 = document.getElementById("welcomeStep2");
+  const step3 = document.getElementById("welcomeStep3");
+  const schedulePreview = document.getElementById("schedulePreview");
+  const connectPop = document.getElementById("connectPop");
+
+  if (!detailContent || !step1 || !step2 || !step3) return;
+
+  clearWelcomeTourClasses(false);
+
+  switch (cueName) {
+    case "intro":
+      scrollMobileTourTarget("#detailPanel");
+      break;
+
+    case "find-search":
+      step1.classList.add("tour-step-active");
+      addTourHighlights([".match-box"], false);
+      scrollMobileTourTarget(".match-box");
+      break;
+
+    case "find-browse":
+      step1.classList.add("tour-step-active");
+      addTourHighlights(["#resultsTitle", "#mentorList"], false);
+      scrollMobileTourTarget(".browse-title");
+      break;
+
+    case "find-map":
+    case "map-access":
+      step1.classList.add("tour-step-active");
+      addTourHighlights([".map-shell"], false);
+      scrollMobileTourTarget(".map-shell");
+      break;
+
+    case "find-all":
+      step1.classList.add("tour-step-active");
+      addTourHighlights([".match-box", "#resultsTitle", "#mentorList", ".map-shell"], false);
+      scrollMobileTourTarget(".sidebar");
+      break;
+
+    case "schedule":
+    case "schedule-button":
+      step1.classList.add("tour-step-complete");
+      step2.classList.add("tour-step-active");
+      if (schedulePreview) schedulePreview.classList.add("visible");
+      addTourHighlights(["#detailPanel", "#schedulePreview", ".preview-button"], false);
+      scrollMobileTourTarget("#detailPanel");
+      break;
+
+    case "connect":
+    case "complete":
+    case "settle":
+      step1.classList.add("tour-step-complete");
+      step2.classList.add("tour-step-complete");
+      step3.classList.add("tour-step-active");
+      if (connectPop) connectPop.classList.add("visible");
+      scrollMobileTourTarget("#detailPanel");
+      break;
   }
 }
