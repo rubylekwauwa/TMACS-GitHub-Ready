@@ -480,15 +480,22 @@ function resetResultsHeader() {
 }
 
 function setMatchResultsHeader(ranked) {
+  const closeMatches = ranked.filter(m => (m.matchPercent || 0) >= 75);
+
+  const excellentCount = closeMatches.length;
+
   document.getElementById("resultsTitle").textContent = "✨ Your Personalized Mentor Recommendations";
   document.getElementById("resultsHelp").textContent = "Ranked for you based on the interests you selected.";
 
-  const closeMatches = ranked.filter(m => (m.matchPercent || 0) >= 75).length;
   const matchStatus = document.getElementById("matchStatus");
-  matchStatus.textContent = closeMatches > 0
-    ? `We found ${closeMatches} mentor${closeMatches === 1 ? "" : "s"} who closely match what you're looking for.`
+
+  matchStatus.textContent = excellentCount > 0
+    ? `We found ${excellentCount} strong mentor match${excellentCount === 1 ? "" : "es"} for you.`
     : "We ranked the mentor network based on what you selected.";
+
   matchStatus.classList.add("visible");
+
+  updateStats(closeMatches.length > 0 ? closeMatches : ranked, "match");
 }
 
 function updateStats(list, mode = "browse") {
@@ -500,9 +507,10 @@ function updateStats(list, mode = "browse") {
   if (mode === "match") {
     statsText = `${visibleMentors} alumni mentors ranked for your personalized match`;
   } else {
-    statsText = visibleMentors === totalMentors
-      ? `${totalMentors} alumni mentors in the T-MACS network`
-      : `${visibleMentors} of ${totalMentors} alumni mentors match your search`;
+ statsText =
+  visibleMentors === 1
+    ? "✨ 1 Personalized Mentor Match"
+    : `✨ ${visibleMentors} Personalized Mentor Matches`;
   }
 
   document.getElementById("stats").innerText = statsText;
@@ -513,7 +521,9 @@ function showMentor(m) {
   selectedMentorName = m.name;
 
   document.getElementById("detailContent").innerHTML = `
-    <div class="profile-hero">
+    <button class="mobile-back-to-results" type="button" onclick="goBackToMobileResults()">← Back to matches</button>
+
+<div class="profile-hero">
       <img class="profile-photo-large" src="${m.image}" alt="Photo of ${m.name}">
       <div>
         <h2>${m.name}</h2>
@@ -1195,8 +1205,8 @@ function runMatch() {
       return b.matchPercent - a.matchPercent || b.matchScore - a.matchScore || a.name.localeCompare(b.name);
     });
 
-  setMatchResultsHeader(ranked);
-  render(ranked, "match");
+render(ranked, "match");
+setMatchResultsHeader(ranked);
 }
 
 document.getElementById("search").addEventListener("input", () => refresh(true));
@@ -1726,3 +1736,224 @@ function highlightSelectedCard() {
     }
   });
 }
+
+function scrollToMobileSection(section) {
+  let target;
+
+  if (section === "match") {
+    target = document.querySelector(".sidebar");
+  }
+
+  if (section === "browse") {
+    target = document.querySelector(".browse-title");
+  }
+
+  if (section === "map") {
+    target = document.querySelector(".map-shell");
+  }
+
+  if (section === "tutorial") {
+
+    restoreTutorialPanel();
+
+    target = document.querySelector("#detailPanel");
+
+}
+
+  if (target) {
+    setTimeout(() => {
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 100);
+  }
+}
+
+(function makeMobileMentorCardsOpenProfile() {
+  document.addEventListener("click", function (event) {
+    const card = event.target.closest(".mentor-card");
+
+    if (!card) return;
+    if (window.innerWidth > 768) return;
+
+    setTimeout(() => {
+      const profilePanel = document.querySelector("#detailPanel");
+
+      if (profilePanel) {
+        profilePanel.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+    }, 250);
+  });
+})();
+function restoreTutorialPanel() {
+  const detailContent = document.querySelector("#detailContent");
+
+  if (!detailContent) return;
+
+  detailContent.innerHTML = `
+    <div class="welcome-card">
+      <h2>👋 Welcome to T-MACS</h2>
+      <p class="welcome-subtitle">Finding a mentor is as easy as 1–2–3.</p>
+
+      <div class="welcome-step">
+        <span class="step-number">1</span>
+        <div>
+          <strong>Find</strong>
+          <p>Browse mentors using the searchable mentor list by specialty, location, or mentorship interest, or explore mentors visually on the interactive map.</p>
+        </div>
+      </div>
+
+      <div class="welcome-step">
+        <span class="step-number">2</span>
+        <div>
+          <strong>Schedule</strong>
+          <p>Use your mentor's preferred scheduling option to find a time to connect.</p>
+        </div>
+      </div>
+
+      <div class="welcome-step">
+        <span class="step-number">3</span>
+        <div>
+          <strong>Connect</strong>
+          <p>Build meaningful mentoring relationships that support your growth throughout residency and beyond.</p>
+        </div>
+      </div>
+
+      <div class="ready-box">
+        <strong>Ready to get started?</strong>
+        <p>Select any mentor from the list or map to view their full profile.</p>
+        <button class="voice-tour-button" type="button" onclick="startWelcomeTourWithVoice()">▶ Start Tour with Voice</button>
+        <button class="replay-tour-button" type="button" onclick="replayWelcomeTour()">▶ Replay Tour</button>
+        <div class="tour-audio-note">Voice starts after you press the voice tour button.</div>
+      </div>
+    </div>
+  `;
+}
+function startWelcomeTourWithVoice() {
+  if (typeof renderWelcomePanel === "function") {
+    renderWelcomePanel();
+  }
+
+  setTimeout(() => {
+    const panel = document.querySelector("#detailPanel");
+    if (panel) {
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    if (typeof runWelcomeTourPreview === "function") {
+      runWelcomeTourPreview(true, true);
+    }
+  }, 150);
+}
+function scrollMobileTourTarget(selector) {
+  if (window.innerWidth > 768) return;
+
+  const target = document.querySelector(selector);
+  if (!target) return;
+
+  target.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+function applyVoiceTourCue(cueName) {
+  const detailContent = document.getElementById("detailContent");
+  const step1 = document.getElementById("welcomeStep1");
+  const step2 = document.getElementById("welcomeStep2");
+  const step3 = document.getElementById("welcomeStep3");
+  const schedulePreview = document.getElementById("schedulePreview");
+  const connectPop = document.getElementById("connectPop");
+
+  if (!detailContent || !step1 || !step2 || !step3) return;
+
+  clearWelcomeTourClasses(false);
+
+  switch (cueName) {
+    case "intro":
+      scrollMobileTourTarget("#detailPanel");
+      break;
+
+    case "find-search":
+      step1.classList.add("tour-step-active");
+      addTourHighlights([".match-box"], false);
+      scrollMobileTourTarget(".match-box");
+      break;
+
+    case "find-browse":
+      step1.classList.add("tour-step-active");
+      addTourHighlights(["#resultsTitle", "#mentorList"], false);
+      scrollMobileTourTarget(".browse-title");
+      break;
+
+    case "find-map":
+    case "map-access":
+      step1.classList.add("tour-step-active");
+      addTourHighlights([".map-shell"], false);
+      scrollMobileTourTarget(".map-shell");
+      break;
+
+    case "find-all":
+      step1.classList.add("tour-step-active");
+      addTourHighlights([".match-box", "#resultsTitle", "#mentorList", ".map-shell"], false);
+      scrollMobileTourTarget(".sidebar");
+      break;
+
+    case "schedule":
+    case "schedule-button":
+      step1.classList.add("tour-step-complete");
+      step2.classList.add("tour-step-active");
+      if (schedulePreview) schedulePreview.classList.add("visible");
+      addTourHighlights(["#detailPanel", "#schedulePreview", ".preview-button"], false);
+      scrollMobileTourTarget("#detailPanel");
+      break;
+
+    case "connect":
+    case "complete":
+    case "settle":
+      step1.classList.add("tour-step-complete");
+      step2.classList.add("tour-step-complete");
+      step3.classList.add("tour-step-active");
+      if (connectPop) connectPop.classList.add("visible");
+      scrollMobileTourTarget("#detailPanel");
+      break;
+  }
+}function scrollMobileTourTarget(selector) {
+  if (window.innerWidth > 768) return;
+
+  const target = document.querySelector(selector);
+  if (!target) return;
+
+  const y = target.getBoundingClientRect().top + window.pageYOffset - 12;
+
+  window.scrollTo({
+    top: Math.max(y, 0),
+    behavior: "smooth"
+  });
+}
+
+const originalApplyVoiceTourCue = applyVoiceTourCue;
+
+applyVoiceTourCue = function(cueName) {
+  originalApplyVoiceTourCue(cueName);
+
+  if (cueName === "find-search") {
+    scrollMobileTourTarget(".match-box");
+  }
+
+  if (cueName === "find-browse") {
+    scrollMobileTourTarget(".browse-title");
+  }
+
+  if (cueName === "find-map" || cueName === "map-access") {
+    scrollMobileTourTarget(".map-shell");
+  }
+
+  if (cueName === "schedule" || cueName === "schedule-button" || cueName === "connect") {
+    scrollMobileTourTarget("#detailPanel");
+  }
+};
