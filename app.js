@@ -1726,3 +1726,20 @@ function highlightSelectedCard() {
     }
   });
 }
+function scrollToMobileSection(section) {
+  const targets = {
+    match: document.querySelector(".match-box"),
+    browse: document.querySelector("#search"),
+    map: document.querySelector(".map-shell"),
+    tutorial: document.querySelector("#detailPanel")
+  };
+
+  const target = targets[section];
+
+  if (target) {
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+}
