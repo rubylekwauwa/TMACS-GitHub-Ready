@@ -3312,6 +3312,33 @@ function highlightSelectedCard() {
     }
   });
 }
+
+<script>
+  function scrollToMobileSection(section) {
+    let target;
+
+    if (section === "match") {
+      target = document.querySelector(".match-box");
+    }
+
+    if (section === "browse") {
+      target = document.querySelector("[placeholder*='Search by keyword'], .mentor-card");
+    }
+
+    if (section === "map") {
+      target = document.querySelector("#map, .map-container");
+    }
+
+    if (section === "tutorial") {
+      target = document.querySelector(".welcome-panel, .tour-panel, .instructions-panel");
+    }
+
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+</script>
+
 </script>
 
 <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
