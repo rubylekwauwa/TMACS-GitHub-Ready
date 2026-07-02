@@ -1,29 +1,26 @@
-# T-MACS Azure Static Web Apps Package
+# T-MACS Azure Static Website Package
 
-This is the Azure-ready T-MACS website package.
+This is the static Azure-ready T-MACS website package.
 
-## Azure Static Web Apps deployment settings
+## Deploying to Azure Storage Static Website
 
-- App location: `/`
-- API location: `api`
-- Output location: leave blank
+Upload the public site files in this folder to the `$web` container for your Azure Storage account.
 
-## Required Azure environment variables
+Required entry point:
 
-Set these in the Azure Static Web App configuration:
+- `index.html`
 
-- `SITE_URL` = your Azure Static Web Apps URL, for example `https://<your-site>.azurestaticapps.net`
-- `CAS_SESSION_SECRET` = a long random secret string
+Static assets used by the site:
 
-Optional overrides are already set to Yale defaults:
+- `app.js`
+- `styles.css`
+- `mobile-app.js`
+- `mobile-home.js`
+- `mobile-home.css`
+- `mobile.css`
+- `guillermo-valdes.png`
+- `welcome-tour.mp3`
 
-- `CAS_LOGIN_URL` = `https://secure.its.yale.edu/cas/login`
-- `CAS_VALIDATE_URL` = `https://secure.its.yale.edu/cas/serviceValidate`
-- `CAS_LOGOUT_URL` = `https://secure.its.yale.edu/cas/logout`
+## Authentication
 
-## CAS callback URL
-
-Once Azure gives you the website URL, the CAS service/callback URL is:
-
-`https://<your-site>.azurestaticapps.net/cas-callback`
-
+The CAS/Azure Functions backend has been removed from this package. This version is intended to run as a plain static website.
