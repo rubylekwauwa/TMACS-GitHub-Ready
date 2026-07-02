@@ -20,7 +20,7 @@ function getBaseUrl(req) {
 }
 
 function getServiceUrl(req) {
-  return `${getBaseUrl(req)}/cas-callback`;
+  return `${getBaseUrl(req)}/api/cas-callback`;
 }
 
 function getSecret() {

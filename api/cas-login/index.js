@@ -1,12 +1,12 @@
+const { CAS_LOGIN_URL, getServiceUrl } = require("../shared/cas-common");
+
 module.exports = async function (context, req) {
-  const casLoginUrl = process.env.CAS_LOGIN_URL || "https://secure.its.yale.edu/cas/login";
-  const siteUrl = (process.env.SITE_URL || "https://tmacsmentornetwork.yale.edu").replace(/\/$/, "");
-  const service = encodeURIComponent(`${siteUrl}/api/cas-callback`);
+  const service = encodeURIComponent(getServiceUrl(req));
 
   context.res = {
     status: 302,
     headers: {
-      Location: `${casLoginUrl}?service=${service}`
+      Location: `${CAS_LOGIN_URL}?service=${service}`
     },
     body: ""
   };

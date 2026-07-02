@@ -11,34 +11,36 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="mobile-home-shield">Yale</div>
 
       <div>
-        <div class="mobile-home-logo">T-MACS<br>Alumni Mentor Network</div>
-        <div class="mobile-home-tag">Teacher • Mentor • Advisor • Coach • Sponsor</div>
+        <div class="mobile-home-logo">
+          T-MACS<br>
+          Alumni Mentor Network
+        </div>
+        <div class="mobile-home-tag">
+          Teacher • Mentor • Advisor • Coach • Sponsor
+        </div>
       </div>
 
       <div class="mobile-home-menu">☰</div>
     </div>
 
- <div class="mobile-home-content">
-  <div class="mobile-home-description">
-    Connecting Yale Psychiatry trainees with alumni mentors across the United States and beyond.
-  </div>
+    <div class="mobile-home-content">
+      <div class="mobile-home-description">
+        Connecting Yale Psychiatry trainees with alumni mentors across the United States and beyond.
+      </div>
 
-  <div class="mobile-home-headline">
-    Find mentors<br>who can help<br>you thrive. ✨
-  </div>
+      <div class="mobile-home-headline">
+        Find mentors<br>who can help<br>you thrive. ✨
+      </div>
 
-  <div class="mobile-home-line"></div>
+      <div class="mobile-home-line"></div>
 
-  <div class="mobile-home-sub">
-    Build relationships.<br>
-    Receive guidance.<br>
-    Explore your future.
-  </div>
-</div>
+      <div class="mobile-home-sub">
+        Build relationships.<br>
+        Receive guidance.<br>
+        Explore your future.
+      </div>
+    </div>
 
-</div>
-
-<div class="mobile-home-buttons">
     <div class="mobile-home-buttons">
       <button class="mobile-home-card mobile-home-primary" id="launchMatch" type="button">
         <span class="mobile-home-icon">✨</span>

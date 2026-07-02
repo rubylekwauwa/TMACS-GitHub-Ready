@@ -36,7 +36,7 @@ module.exports = async function (context, req) {
       context.res = {
         status: 401,
         headers: { "Content-Type": "text/html; charset=utf-8" },
-        body: `<h1>CAS Authentication Failed</h1><p>Yale CAS did not validate this login ticket.</p><p><a href="/cas-login">Try again</a></p>`,
+        body: `<h1>CAS Authentication Failed</h1><p>Yale CAS did not validate this login ticket.</p><p><a href="/api/cas-login">Try again</a></p>,
       };
       return;
     }

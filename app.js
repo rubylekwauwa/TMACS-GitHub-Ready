@@ -1,3 +1,23 @@
+async function requireYaleLogin() {
+  try {
+    const res = await fetch("/api/me", {
+      credentials: "include"
+    });
+
+    if (!res.ok) {
+      window.location.href = "/api/cas-login";
+      return;
+    }
+
+    const user = await res.json();
+    console.log("Yale CAS user:", user.user || user.netid);
+  } catch (err) {
+    window.location.href = "/api/cas-login";
+  }
+}
+
+requireYaleLogin();
+
 mapboxgl.accessToken = "pk.eyJ1IjoicnVieWxla3dhdXdhIiwiYSI6ImNtcTE3bHFoMzBlOTYyc3B2eXExaXd2MnUifQ.JujVnc0l3dJr-gwtNlr3nQ";
 
 const TMACS_BOOKING_LINK =
@@ -1957,3 +1977,54 @@ applyVoiceTourCue = function(cueName) {
     scrollMobileTourTarget("#detailPanel");
   }
 };
+(function enhanceMobileMatchExperience() {
+  const matchBox = document.querySelector(".match-box");
+  const matchButton = matchBox ? matchBox.querySelector("button") : null;
+
+  if (!matchBox || !matchButton) return;
+
+  const loader = document.createElement("div");
+  loader.className = "mobile-matching-loader";
+  loader.textContent = "✨ Finding your best mentor matches...";
+  matchBox.appendChild(loader);
+
+  const originalClick = matchButton.onclick;
+
+  matchButton.onclick = function () {
+    loader.classList.add("visible");
+
+    setTimeout(() => {
+      if (typeof originalClick === "function") {
+        originalClick.call(matchButton);
+      } else if (typeof runMatch === "function") {
+        runMatch();
+      }
+
+      loader.classList.remove("visible");
+
+      const results = document.querySelector("#mentorList");
+      if (results) {
+        results.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 900);
+  };
+})();
+(function makeMobileMentorCardsOpenProfile() {
+  document.addEventListener("click", function (event) {
+    const card = event.target.closest(".mentor-card");
+
+    if (!card) return;
+    if (window.innerWidth > 768) return;
+
+    setTimeout(() => {
+      const profilePanel = document.querySelector("#detailPanel");
+
+      if (profilePanel) {
+        profilePanel.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+    }, 250);
+  });
+})();
