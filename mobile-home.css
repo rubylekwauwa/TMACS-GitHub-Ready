@@ -12,12 +12,18 @@ body.mobile-home-hidden #mobileHome{
 
 #mobileHome{
   position:fixed;
-  inset:0;
+top:0;
+left:0;
+right:0;
+bottom:0;
   z-index:999999;
   box-sizing:border-box;
-  padding:22px 26px 26px;
-  overflow:hidden;
+  padding:42px 26px 26px;
+overflow-y:auto;
+overflow-x:hidden;
   color:white;
+
+  transform:none !important;
 
   background:
     linear-gradient(
@@ -39,7 +45,7 @@ body.mobile-home-hidden #mobileHome{
   grid-template-columns:46px 1fr 30px;
   gap:12px;
   align-items:start;
-  margin-bottom:34px;
+  margin-bottom:22px;
 }
 
 .mobile-home-shield{
