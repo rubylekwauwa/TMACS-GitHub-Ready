@@ -32,10 +32,9 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_POLITE_PLANT_0F695530F }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "/"
-          api_location: "api"
+          app_location: "/azure-entra-static-web-app/src"
+          api_location: ""
           output_location: ""
-          api_build_command: "npm install --production"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
