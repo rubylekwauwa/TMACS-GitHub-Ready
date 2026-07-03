@@ -2113,6 +2113,7 @@ applyVoiceTourCue = function(cueName) {
   const matchButton = matchBox ? matchBox.querySelector("button") : null;
 
   if (!matchBox || !matchButton) return;
+  if (window.innerWidth > 768) return;
 
   const loader = document.createElement("div");
   loader.className = "mobile-matching-loader";
