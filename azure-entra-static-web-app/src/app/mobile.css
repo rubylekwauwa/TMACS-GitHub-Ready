@@ -1485,13 +1485,20 @@
 
   body.mobile-personalized-results.mobile-home-hidden .stats{
     align-self:center !important;
-    padding:6px 9px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:auto !important;
+    max-width:46% !important;
+    padding:4px 8px !important;
     border-radius:999px !important;
     background:#ffd54f !important;
     color:#00264d !important;
     box-shadow:0 6px 16px rgba(0,0,0,.16) !important;
     opacity:1 !important;
     font-weight:900 !important;
+    text-align:center !important;
+    line-height:1.08 !important;
   }
 
   .mobile-results-celebration{

@@ -490,6 +490,7 @@ function showMobileMatchCelebrationPage() {
   const best = Math.max(...scores);
   const excellent = scores.filter(score => score >= 75).length;
   const strong = scores.filter(score => score >= 50 && score < 75).length;
+  const qualityTotal = excellent + strong;
 
   const card = document.createElement("section");
   card.className = "mobile-results-celebration";
@@ -499,7 +500,7 @@ function showMobileMatchCelebrationPage() {
     '<div class="mobile-results-phone">' +
       '<div class="mobile-results-kicker">Match Celebration</div>' +
       '<h3>Great news!</h3>' +
-      '<p>We found <strong>' + scores.length + '</strong> mentor' + (scores.length === 1 ? "" : "s") + ' for you.</p>' +
+      '<p>We found <strong>' + qualityTotal + '</strong> mentor match' + (qualityTotal === 1 ? "" : "es") + ' for you.</p>' +
       '<div class="mobile-match-stat best"><strong>' + best + '%</strong><span>Highest Match</span></div>' +
       '<div class="mobile-match-stat excellent"><strong>' + excellent + '</strong><span>Excellent Matches</span></div>' +
       '<div class="mobile-match-stat strong"><strong>' + strong + '</strong><span>Strong Matches</span></div>' +
@@ -546,12 +547,12 @@ function setMatchResultsHeader(ranked) {
   const matchStatus = document.getElementById("matchStatus");
 
   matchStatus.textContent = excellentCount > 0
-    ? `We found ${excellentCount} strong mentor match${excellentCount === 1 ? "" : "es"} for you.`
+    ? `We found ${excellentCount} excellent mentor match${excellentCount === 1 ? "" : "es"} for you.`
     : "We ranked the mentor network based on what you selected.";
 
   matchStatus.classList.add("visible");
 
-  updateStats(closeMatches.length > 0 ? closeMatches : ranked, "match");
+  updateStats(ranked, "match");
 }
 
 function updateStats(list, mode = "browse") {
@@ -561,7 +562,12 @@ function updateStats(list, mode = "browse") {
   let statsText;
 
   if (mode === "match") {
-    statsText = `${visibleMentors} alumni mentors ranked for your personalized match`;
+    const excellentMatches = list.filter(m => (m.matchPercent || 0) >= 75).length;
+    const strongMatches = list.filter(m => (m.matchPercent || 0) >= 50 && (m.matchPercent || 0) < 75).length;
+    const qualityMatches = excellentMatches + strongMatches;
+    statsText = qualityMatches > 0
+      ? `${qualityMatches} strong/excellent personalized mentor match${qualityMatches === 1 ? "" : "es"}`
+      : `${visibleMentors} alumni mentors ranked for your personalized match`;
   } else {
  statsText =
   visibleMentors === 1
@@ -1852,48 +1858,9 @@ function scrollToMobileSection(section) {
   });
 })();
 function restoreTutorialPanel() {
-  const detailContent = document.querySelector("#detailContent");
-
-  if (!detailContent) return;
-
-  detailContent.innerHTML = `
-    <div class="welcome-card">
-      <h2>👋 Welcome to T-MACS</h2>
-      <p class="welcome-subtitle">Finding a mentor is as easy as 1–2–3.</p>
-
-      <div class="welcome-step">
-        <span class="step-number">1</span>
-        <div>
-          <strong>Find</strong>
-          <p>Browse mentors using the searchable mentor list by specialty, location, or mentorship interest, or explore mentors visually on the interactive map.</p>
-        </div>
-      </div>
-
-      <div class="welcome-step">
-        <span class="step-number">2</span>
-        <div>
-          <strong>Schedule</strong>
-          <p>Use your mentor's preferred scheduling option to find a time to connect.</p>
-        </div>
-      </div>
-
-      <div class="welcome-step">
-        <span class="step-number">3</span>
-        <div>
-          <strong>Connect</strong>
-          <p>Build meaningful mentoring relationships that support your growth throughout residency and beyond.</p>
-        </div>
-      </div>
-
-      <div class="ready-box">
-        <strong>Ready to get started?</strong>
-        <p>Select any mentor from the list or map to view their full profile.</p>
-        <button class="voice-tour-button" type="button" onclick="startWelcomeTourWithVoice()">▶ Start Tour with Voice</button>
-        <button class="replay-tour-button" type="button" onclick="replayWelcomeTour()">▶ Replay Tour</button>
-        <div class="tour-audio-note">Voice starts after you press the voice tour button.</div>
-      </div>
-    </div>
-  `;
+  if (typeof renderWelcomePanel === "function") {
+    renderWelcomePanel();
+  }
 }
 function startWelcomeTourWithVoice() {
   if (typeof renderWelcomePanel === "function") {
@@ -1908,6 +1875,18 @@ function startWelcomeTourWithVoice() {
 
     if (typeof runWelcomeTourPreview === "function") {
       runWelcomeTourPreview(true, true);
+    }
+  }, 150);
+}
+
+function replayWelcomeTour() {
+  if (typeof renderWelcomePanel === "function") {
+    renderWelcomePanel();
+  }
+
+  setTimeout(() => {
+    if (typeof runWelcomeTourPreview === "function") {
+      runWelcomeTourPreview(true, false);
     }
   }, 150);
 }
