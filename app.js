@@ -1587,6 +1587,99 @@ function applyVoiceTourCue(cueName) {
   }
 }
 
+
+function scrollDesktopTourTarget(selector) {
+  if (window.innerWidth <= 768) return;
+  const target = document.querySelector(selector);
+  if (!target) return;
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function applyDesktopVoiceVisualCue(cueName) {
+  if (window.innerWidth <= 768 || selectedMentorName) return;
+
+  const detailContent = document.getElementById("detailContent");
+  const step1 = document.getElementById("welcomeStep1");
+  const step2 = document.getElementById("welcomeStep2");
+  const step3 = document.getElementById("welcomeStep3");
+  const schedulePreview = document.getElementById("schedulePreview");
+  const connectPop = document.getElementById("connectPop");
+  if (!detailContent || !step1 || !step2 || !step3) return;
+
+  clearWelcomeTourClasses(false);
+
+  switch (cueName) {
+    case "intro":
+      addTourHighlights([".welcome-card"], true);
+      scrollDesktopTourTarget(".welcome-card");
+      break;
+    case "find-search":
+      step1.classList.add("tour-step-active");
+      addTourHighlights([".match-box"], false);
+      scrollDesktopTourTarget(".match-box");
+      break;
+    case "find-browse":
+      step1.classList.add("tour-step-active");
+      addTourHighlights([".browse-title", "#mentorList"], false);
+      scrollDesktopTourTarget(".browse-title");
+      break;
+    case "find-map":
+    case "map-access":
+      step1.classList.add("tour-step-active");
+      addTourHighlights(cueName === "map-access" ? [".map-shell", ".map-access-note"] : [".map-shell"], false);
+      scrollDesktopTourTarget(".map-shell");
+      break;
+    case "find-all":
+      step1.classList.add("tour-step-active");
+      addTourHighlights([".match-box", ".browse-title", "#mentorList", ".map-shell"], false);
+      scrollDesktopTourTarget(".container");
+      break;
+    case "schedule":
+    case "schedule-button":
+      step1.classList.add("tour-step-complete");
+      step2.classList.add("tour-step-active");
+      if (schedulePreview) schedulePreview.classList.add("visible");
+      addTourHighlights(cueName === "schedule-button" ? ["#schedulePreview", ".preview-button"] : ["#detailPanel"], cueName !== "schedule-button");
+      scrollDesktopTourTarget("#detailPanel");
+      break;
+    case "connect":
+      step1.classList.add("tour-step-complete");
+      step2.classList.add("tour-step-complete");
+      step3.classList.add("tour-step-active");
+      if (connectPop) connectPop.classList.add("visible");
+      scrollDesktopTourTarget("#detailPanel");
+      break;
+    case "complete":
+    case "settle":
+      step1.classList.add("tour-step-complete");
+      step2.classList.add("tour-step-complete");
+      step3.classList.add("tour-step-complete");
+      if (connectPop) connectPop.classList.remove("visible");
+      scrollDesktopTourTarget("#detailPanel");
+      break;
+  }
+}
+
+function startDesktopVoiceVisualTour() {
+  if (window.innerWidth <= 768) return;
+  const cues = [
+    { delay: 0, cue: "intro" },
+    { delay: 18000, cue: "find-search" },
+    { delay: 23400, cue: "find-browse" },
+    { delay: 27200, cue: "find-map" },
+    { delay: 31400, cue: "map-access" },
+    { delay: 38000, cue: "find-all" },
+    { delay: 40600, cue: "schedule" },
+    { delay: 47000, cue: "connect" },
+    { delay: 57200, cue: "complete" },
+    { delay: 60000, cue: "settle" }
+  ];
+  cues.forEach(item => {
+    const timeout = window.setTimeout(() => applyDesktopVoiceVisualCue(item.cue), item.delay);
+    welcomeTourTimeouts.push(timeout);
+  });
+}
+
 function startVoiceTourCueSync(audio, note) {
   activeVoiceCueIndex = -1;
 
@@ -1606,17 +1699,31 @@ function startVoiceTourCueSync(audio, note) {
     { time: 60.0, cue: "settle" }
   ];
 
+  const applyCueAtIndex = index => {
+    if (index <= activeVoiceCueIndex || selectedMentorName) return;
+    activeVoiceCueIndex = index;
+    applyVoiceTourCue(voiceCuePoints[index].cue);
+  };
+
+  window.__tmacsVoiceCuePoints = voiceCuePoints.map(point => ({ time: point.time, cue: point.cue }));
+
   const onTimeUpdate = () => {
     const currentTime = audio.currentTime || 0;
     for (let index = activeVoiceCueIndex + 1; index < voiceCuePoints.length; index += 1) {
       if (currentTime >= voiceCuePoints[index].time) {
-        activeVoiceCueIndex = index;
-        applyVoiceTourCue(voiceCuePoints[index].cue);
+        applyCueAtIndex(index);
       } else {
         break;
       }
     }
   };
+
+  voiceCuePoints.forEach((point, index) => {
+    const timeout = window.setTimeout(() => {
+      applyCueAtIndex(index);
+    }, Math.max(point.time * 1000, 0));
+    welcomeTourTimeouts.push(timeout);
+  });
 
   const onEnded = () => {
     applyVoiceTourCue("settle");
@@ -1653,15 +1760,18 @@ function runWelcomeTourPreview(forceReplay = false, withVoice = false) {
 
   if (withVoice && audio) {
     audio.currentTime = 0;
-    audio.play().then(() => {
-      if (note) {
-        note.textContent = "Voice tour is playing. You can start exploring at any time.";
-        note.classList.add("active");
-      }
+    if (note) {
+      note.textContent = "Voice tour is playing. You can start exploring at any time.";
+      note.classList.add("active");
+    }
+    if (window.innerWidth > 768) {
+      startDesktopVoiceVisualTour();
+    } else {
       startVoiceTourCueSync(audio, note);
-    }).catch(() => {
+    }
+    audio.play().catch(() => {
       if (note) {
-        note.textContent = "Your browser blocked audio. Press the voice tour button again, or check that welcome-tour.mp3 was uploaded with index.html.";
+        note.textContent = "Your browser blocked audio, so the visual tour will continue without sound.";
         note.classList.add("active");
       }
     });
@@ -1683,7 +1793,7 @@ function runWelcomeTourPreview(forceReplay = false, withVoice = false) {
       stopWelcomeTour(true);
     };
 
-    ["click", "keydown", "pointerdown"].forEach(eventName => {
+    ["keydown"].forEach(eventName => {
       window.addEventListener(eventName, cancelTour, true);
       welcomeTourCancelHandlers.push({ eventName, handler: cancelTour });
     });
@@ -1790,7 +1900,7 @@ function runWelcomeTourPreview(forceReplay = false, withVoice = false) {
 map.on("load", () => {
   renderWelcomePanel();
   refresh(false);
-  runWelcomeTourPreview();
+  // Tour now starts only from the Tour controls, so voice cues are not overwritten by page-load timers.
 });
 
 function highlightSelectedCard() {
@@ -1902,7 +2012,7 @@ function scrollMobileTourTarget(selector) {
   });
 }
 
-function applyVoiceTourCue(cueName) {
+function applyMobileVoiceTourCue(cueName) {
   const detailContent = document.getElementById("detailContent");
   const step1 = document.getElementById("welcomeStep1");
   const step2 = document.getElementById("welcomeStep2");
