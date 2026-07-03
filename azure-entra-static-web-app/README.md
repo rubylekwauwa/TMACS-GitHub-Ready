@@ -27,12 +27,9 @@ The tenant ID is already set in `src/staticwebapp.config.json` as the Entra issu
 
 ## Azure application settings
 
-Set these in the Azure Static Web App configuration:
+Current mode: managed Microsoft Entra auth. No client ID or client secret app settings are required for this fallback configuration.
 
-- `AZURE_CLIENT_ID` = `b5361b9b-a47a-4828-a953-74cfda2a8ea0`
-- `AZURE_CLIENT_SECRET` = the client secret from Yale ITS / the Entra app registration
-
-Do not commit the client secret into this repository. Azure Static Web Apps reads it from the application setting named above. If you previously created `AAD_CLIENT_ID` and `AAD_CLIENT_SECRET`, add or rename them to `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET`.
+Future/custom mode: if Yale ITS later re-enables tenant-restricted custom auth, use the Yale-provided client ID and secret in Azure Static Web Apps application settings. Do not commit the client secret into this repository.
 
 ## Auth behavior
 
@@ -48,8 +45,8 @@ If sign-in fails, check these first:
 
 - The Static Web App must be on the Standard plan for custom Entra authentication.
 - The deployed app location must point at this package's `src` folder. If deploying from the repository root, use `/azure-entra-static-web-app/src`.
-- The app settings must be named exactly `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET`.
-- The Entra app registration must include this redirect URI exactly: `https://tmacsmentornetwork.yale.edu/.auth/login/aad/callback`.
+- In the current managed-auth fallback, no Entra client secret is required.
+- If custom auth is reintroduced later, the Entra app registration must include this redirect URI exactly: `https://tmacsmentornetwork.yale.edu/.auth/login/aad/callback`.
 - After changing app settings or auth config, redeploy or restart the Static Web App before testing again.
 
 
@@ -61,6 +58,11 @@ If Yale sign-in reaches Duo and then returns to the sign-in page, the Microsoft/
 
 After Yale sign-in, the landing page now sends users through `/auth-check.html` before opening `/app/`. This confirms whether Azure Static Web Apps created a `clientPrincipal` session via `/.auth/me`. If Duo succeeds but this page says sign-in did not complete, the issue is in Azure Static Web Apps auth/session configuration rather than the TMACS front-end.
 
-## Current Microsoft docs alignment
 
-The config uses `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET`, matching the Microsoft Static Web Apps custom Entra examples. Azure reads the actual secret from the app setting named `AZURE_CLIENT_SECRET`; the secret itself should never be committed.
+## Auth endpoint 404 note
+
+If `https://tmacsmentornetwork.yale.edu/.auth/login/aad` shows an Azure `404: Not Found`, the request is not reaching Azure Static Web Apps authentication. Check that `tmacsmentornetwork.yale.edu` is mapped to the Azure Static Web App resource, not an Azure Storage Static Website, and test the Static Web Apps default `*.azurestaticapps.net` URL directly. Also confirm the Static Web App is on the Standard plan and the deployed workflow is using `app_location: "azure-entra-static-web-app/src"`.
+
+## Managed auth fallback
+
+The current `staticwebapp.config.json` intentionally uses Azure Static Web Apps managed Microsoft Entra auth and does not include a custom `auth.identityProviders` block. This should make `/.auth/login/aad` available on all Static Web Apps plans. Once the built-in auth route works, Yale ITS can decide whether tenant-restricted custom auth is still required; custom auth requires the Standard plan.
