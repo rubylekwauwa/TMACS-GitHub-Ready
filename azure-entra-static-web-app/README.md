@@ -29,10 +29,10 @@ The tenant ID is already set in `src/staticwebapp.config.json` as the Entra issu
 
 Set these in the Azure Static Web App configuration:
 
-- `AAD_CLIENT_ID` = `b5361b9b-a47a-4828-a953-74cfda2a8ea0`
-- `AAD_CLIENT_SECRET` = the client secret from Yale ITS / the Entra app registration
+- `AZURE_CLIENT_ID` = `b5361b9b-a47a-4828-a953-74cfda2a8ea0`
+- `AZURE_CLIENT_SECRET` = the client secret from Yale ITS / the Entra app registration
 
-Do not commit the client secret into this repository. Azure Static Web Apps reads it from the application setting named above.
+Do not commit the client secret into this repository. Azure Static Web Apps reads it from the application setting named above. If you previously created `AAD_CLIENT_ID` and `AAD_CLIENT_SECRET`, add or rename them to `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET`.
 
 ## Auth behavior
 
@@ -48,11 +48,19 @@ If sign-in fails, check these first:
 
 - The Static Web App must be on the Standard plan for custom Entra authentication.
 - The deployed app location must point at this package's `src` folder. If deploying from the repository root, use `/azure-entra-static-web-app/src`.
-- The app settings must be named exactly `AAD_CLIENT_ID` and `AAD_CLIENT_SECRET`.
+- The app settings must be named exactly `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET`.
 - The Entra app registration must include this redirect URI exactly: `https://tmacsmentornetwork.yale.edu/.auth/login/aad/callback`.
 - After changing app settings or auth config, redeploy or restart the Static Web App before testing again.
 
 
 ## Duo loop note
 
-If Yale sign-in reaches Duo and then returns to the sign-in page, the Microsoft/Yale side is authenticating but Azure Static Web Apps is not establishing its final app session. Check that the Static Web App is on the Standard plan, the custom auth config has redeployed, `AAD_CLIENT_SECRET` is current, and the Entra redirect URI is configured as a Web redirect URI.
+If Yale sign-in reaches Duo and then returns to the sign-in page, the Microsoft/Yale side is authenticating but Azure Static Web Apps is not establishing its final app session. Check that the Static Web App is on the Standard plan, the custom auth config has redeployed, `AZURE_CLIENT_SECRET` is current, and the Entra redirect URI is configured as a Web redirect URI.
+
+## Auth check page
+
+After Yale sign-in, the landing page now sends users through `/auth-check.html` before opening `/app/`. This confirms whether Azure Static Web Apps created a `clientPrincipal` session via `/.auth/me`. If Duo succeeds but this page says sign-in did not complete, the issue is in Azure Static Web Apps auth/session configuration rather than the TMACS front-end.
+
+## Current Microsoft docs alignment
+
+The config uses `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET`, matching the Microsoft Static Web Apps custom Entra examples. Azure reads the actual secret from the app setting named `AZURE_CLIENT_SECRET`; the secret itself should never be committed.

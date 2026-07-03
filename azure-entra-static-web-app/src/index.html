@@ -42,7 +42,7 @@
   </style>
   <script>
     if (window.matchMedia && window.matchMedia('(min-width: 769px)').matches) {
-      window.location.replace('/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent('/app/'));
+      window.location.replace('/.auth/login/aad?post_login_redirect_uri=%2Fauth-check.html%3Fnext%3D%2Fapp%2F');
     }
   </script>
 </head>
@@ -59,12 +59,12 @@
       <h1 id="page-title">Find mentors who can help you thrive.</h1>
       <p>Connecting Yale Psychiatry trainees with alumni mentors across the United States and beyond.</p>
       <div class="actions desktop-actions">
-        <a class="button" href="/.auth/login/aad?post_login_redirect_uri=/app/">Sign in with Yale Entra ID</a>
+        <a class="button" href="/.auth/login/aad?post_login_redirect_uri=%2Fauth-check.html%3Fnext%3D%2Fapp%2F">Sign in with Yale Entra ID</a>
       </div>
       <div class="mobile-options" aria-label="Start T-MACS">
-        <a class="mobile-card primary" href="/.auth/login/aad?post_login_redirect_uri=%2Fapp%2F%3Fview%3Dmatch"><span class="icon">*</span><span><strong>Find Your Match</strong><small>Get matched with mentors based on your goals and interests.</small></span><span>›</span></a>
-        <a class="mobile-card" href="/.auth/login/aad?post_login_redirect_uri=%2Fapp%2F%3Fview%3Dbrowse"><span class="icon">+</span><span><strong>Browse All Mentors</strong><small>Explore the alumni mentor network.</small></span><span>›</span></a>
-        <a class="mobile-card" href="/.auth/login/aad?post_login_redirect_uri=%2Fapp%2F%3Fview%3Dguide"><span class="icon">▶</span><span><strong>Take a Tour</strong><small>Learn how T-MACS can support your mentoring journey.</small></span><span>›</span></a>
+        <a class="mobile-card primary" href="/.auth/login/aad?post_login_redirect_uri=%2Fauth-check.html%3Fnext%3D%2Fapp%2F%3Fview%3Dmatch"><span class="icon">*</span><span><strong>Find Your Match</strong><small>Get matched with mentors based on your goals and interests.</small></span><span>›</span></a>
+        <a class="mobile-card" href="/.auth/login/aad?post_login_redirect_uri=%2Fauth-check.html%3Fnext%3D%2Fapp%2F%3Fview%3Dbrowse"><span class="icon">+</span><span><strong>Browse All Mentors</strong><small>Explore the alumni mentor network.</small></span><span>›</span></a>
+        <a class="mobile-card" href="/.auth/login/aad?post_login_redirect_uri=%2Fauth-check.html%3Fnext%3D%2Fapp%2F%3Fview%3Dguide"><span class="icon">▶</span><span><strong>Take a Tour</strong><small>Learn how T-MACS can support your mentoring journey.</small></span><span>›</span></a>
       </div>
       <div class="privacy">Mentor profiles are shown after Yale Entra sign-in.</div>
     </section>
