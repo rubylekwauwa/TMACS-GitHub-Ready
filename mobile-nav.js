@@ -49,7 +49,7 @@
       if (scores[j] >= 75) excellent += 1;
       else if (scores[j] >= 50) strong += 1;
     }
-    return { total:scores.length, best:best, excellent:excellent, strong:strong };
+    return { total:excellent + strong, best:best, excellent:excellent, strong:strong };
   }
 
   function revealMatches(){
@@ -81,7 +81,7 @@
       '<div class="mobile-results-phone">' +
         '<div class="mobile-results-kicker">Match Celebration</div>' +
         '<h3>Great news!</h3>' +
-        '<p>We found <strong>' + stats.total + '</strong> mentor' + (stats.total === 1 ? '' : 's') + ' for you.</p>' +
+        '<p>We found <strong>' + stats.total + '</strong> mentor match' + (stats.total === 1 ? '' : 'es') + ' for you.</p>' +
         '<div class="mobile-match-stat best"><strong>' + stats.best + '%</strong><span>Highest Match</span></div>' +
         '<div class="mobile-match-stat excellent"><strong>' + stats.excellent + '</strong><span>Excellent Matches</span></div>' +
         '<div class="mobile-match-stat strong"><strong>' + stats.strong + '</strong><span>Strong Matches</span></div>' +
