@@ -3,7 +3,7 @@
   "routes": [
     {
       "route": "/login",
-      "redirect": "/.auth/login/aad"
+      "redirect": "/.auth/login/aad?prompt=select_account"
     },
     {
       "route": "/logout",
@@ -19,17 +19,21 @@
   "responseOverrides": {
     "401": {
       "statusCode": 302,
-      "redirect": "/.auth/login/aad"
+      "redirect": "/.auth/login/aad?prompt=select_account"
     }
   },
   "auth": {
     "identityProviders": {
       "azureActiveDirectory": {
-        "userDetailsClaim": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
         "registration": {
-          "openIdIssuer": "https://login.microsoftonline.com/dd8cbebb-2139-4df8-b411-4e3e87abeb5c",
+          "openIdIssuer": "https://login.microsoftonline.com/dd8cbebb-2139-4df8-b411-4e3e87abeb5c/v2.0",
           "clientIdSettingName": "AAD_CLIENT_ID",
           "clientSecretSettingName": "AAD_CLIENT_SECRET"
+        },
+        "login": {
+          "loginParameters": [
+            "prompt=select_account"
+          ]
         }
       }
     }

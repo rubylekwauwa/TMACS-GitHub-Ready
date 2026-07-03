@@ -51,3 +51,7 @@ If sign-in fails, check these first:
 - The app settings must be named exactly `AAD_CLIENT_ID` and `AAD_CLIENT_SECRET`.
 - The Entra app registration must include this redirect URI exactly: `https://tmacsmentornetwork.yale.edu/.auth/login/aad/callback`.
 - After changing app settings or auth config, redeploy or restart the Static Web App before testing again.
+
+## Sign-in note
+
+The auth config uses the Microsoft Entra v2.0 issuer and passes `prompt=select_account` so Microsoft asks the user to choose or re-enter a Yale account instead of silently reusing a stale Windows-connected token.
