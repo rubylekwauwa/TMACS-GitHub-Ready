@@ -1316,8 +1316,8 @@ a.profile-link {
 </style>
 
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="mobile.css">
-<link rel="stylesheet" href="mobile-home.css">
+<link rel="stylesheet" href="mobile.css?v=mobile-tour-16">
+<link rel="stylesheet" href="mobile-home.css?v=mobile-home-12">
 
 </head>
 
@@ -1469,10 +1469,11 @@ a.profile-link {
 <audio id="tourAudio" preload="auto" src="welcome-tour.mp3"></audio>
 
 <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
-  <button type="button" onclick="scrollToMobileSection('match')">✨<span>Match Me</span></button>
-  <button type="button" onclick="scrollToMobileSection('browse')">👥<span>Browse</span></button>
-  <button type="button" onclick="scrollToMobileSection('map')">📍<span>Map</span></button>
-  <button type="button" onclick="scrollToMobileSection('tutorial')">▶️<span>Tour</span></button>
+  <button type="button" data-view="match" onclick="scrollToMobileSection('match')"><span class="nav-icon match-icon">✨</span><span>Match Me</span></button>
+  <button type="button" data-view="browse" onclick="scrollToMobileSection('browse')"><span class="nav-icon browse-icon">👥</span><span>Browse</span></button>
+  <button type="button" data-view="map" onclick="scrollToMobileSection('map')"><span class="nav-icon map-icon">📍</span><span>Map</span></button>
+  <button type="button" data-view="guide" onclick="scrollToMobileSection('tutorial')"><span class="nav-icon tour-icon">▶</span><span>Tour</span></button>
+  <button type="button" data-action="feedback" aria-label="Feedback"><span class="nav-icon feedback-icon-nav">📣</span><span>Feedback</span></button>
 </nav>
 
 <footer class="site-footer" role="contentinfo">
@@ -1485,7 +1486,10 @@ a.profile-link {
 
 
 <script src="app.js"></script>
-<script src="mobile-app.js"></script>
+<script src="mobile-app.js?v=mobile-fullscreen-nav-1"></script>
+<script src="mobile-nav.js?v=mobile-nav-16"></script>
+<script src="mobile-enhancements.js?v=mobile-polish-3"></script>
+
 <script src="mobile-home.js"></script>
 
 </body>

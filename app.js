@@ -473,7 +473,60 @@ function matchReasonsMarkup(m, limit = 3) {
   return `<div class="match-checks">${reasons.map(reason => `<span>✓ ${cleanMatchReason(reason)}</span>`).join("")}</div>`;
 }
 
+function showMobileMatchCelebrationPage() {
+  if (window.innerWidth > 768) return;
+  if (!document.body.classList.contains("mobile-personalized-results")) return;
+  if (document.querySelector(".mobile-results-celebration")) return;
+
+  const scores = Array.from(document.querySelectorAll("#mentorList .match-score"))
+    .map(el => {
+      const match = (el.textContent || "").match(/(\d+)/);
+      return match ? Number(match[1]) : null;
+    })
+    .filter(score => score !== null);
+
+  if (!scores.length) return;
+
+  const best = Math.max(...scores);
+  const excellent = scores.filter(score => score >= 75).length;
+  const strong = scores.filter(score => score >= 50 && score < 75).length;
+
+  const card = document.createElement("section");
+  card.className = "mobile-results-celebration";
+  card.setAttribute("aria-label", "Personalized match celebration");
+  card.innerHTML =
+    '<div class="confetti" aria-hidden="true"></div>' +
+    '<div class="mobile-results-phone">' +
+      '<div class="mobile-results-kicker">Match Celebration</div>' +
+      '<h3>Great news!</h3>' +
+      '<p>We found <strong>' + scores.length + '</strong> mentor' + (scores.length === 1 ? "" : "s") + ' for you.</p>' +
+      '<div class="mobile-match-stat best"><strong>' + best + '%</strong><span>Highest Match</span></div>' +
+      '<div class="mobile-match-stat excellent"><strong>' + excellent + '</strong><span>Excellent Matches</span></div>' +
+      '<div class="mobile-match-stat strong"><strong>' + strong + '</strong><span>Strong Matches</span></div>' +
+      '<button type="button" class="mobile-explore-matches">Reveal Matches -></button>' +
+    '</div>';
+
+  document.body.appendChild(card);
+  document.body.classList.add("mobile-celebration-active");
+
+  const reveal = () => {
+    card.classList.add("leaving");
+    window.setTimeout(() => {
+      card.remove();
+      document.body.classList.remove("mobile-celebration-active");
+      if (typeof window.setMobileView === "function") window.setMobileView("browse");
+      const title = document.getElementById("resultsTitle");
+      if (title) title.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 420);
+  };
+
+  card.querySelector(".mobile-explore-matches").addEventListener("click", reveal);
+  window.clearTimeout(window.__mobileCelebrationTimer);
+  window.__mobileCelebrationTimer = window.setTimeout(reveal, 3600);
+}
+
 function resetResultsHeader() {
+  document.body.classList.remove("mobile-personalized-results");
   document.getElementById("resultsTitle").textContent = "Browse All Mentors";
   document.getElementById("resultsHelp").textContent = "Search by name, location, or topic to explore the full network.";
   const matchStatus = document.getElementById("matchStatus");
@@ -482,6 +535,7 @@ function resetResultsHeader() {
 }
 
 function setMatchResultsHeader(ranked) {
+  document.body.classList.add("mobile-personalized-results");
   const closeMatches = ranked.filter(m => (m.matchPercent || 0) >= 75);
 
   const excellentCount = closeMatches.length;
@@ -691,7 +745,12 @@ function render(list, mode = "browse") {
 
     markerEl.addEventListener("mouseenter", () => popup.addTo(map));
     markerEl.addEventListener("mouseleave", () => popup.remove());
-    markerEl.addEventListener("click", () => showMentor(m));
+    markerEl.addEventListener("click", () => {
+      showMentor(m);
+      if (window.innerWidth <= 768 && typeof window.setMobileView === "function") {
+        window.setMobileView("profile");
+      }
+    });
     markerEl.addEventListener("keydown", event => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
@@ -1209,6 +1268,7 @@ function runMatch() {
 
 render(ranked, "match");
 setMatchResultsHeader(ranked);
+window.setTimeout(showMobileMatchCelebrationPage, 120);
 }
 
 document.getElementById("search").addEventListener("input", () => refresh(true));
