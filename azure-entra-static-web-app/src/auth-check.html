@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checking Yale Sign-In | T-MACS</title>
+  <style>
+    body { margin:0; min-height:100vh; display:grid; place-items:center; font-family:Arial, sans-serif; color:#172033; background:#f5f7fb; }
+    main { width:min(680px, calc(100% - 32px)); background:white; border:1px solid #d9e2ef; border-radius:8px; padding:28px; box-shadow:0 18px 42px rgba(21,32,56,.12); }
+    h1 { margin:0 0 12px; color:#00356b; font-size:1.55rem; }
+    p { line-height:1.5; }
+    a, button { display:inline-flex; margin:8px 8px 0 0; padding:11px 14px; border-radius:6px; border:0; background:#00356b; color:white; text-decoration:none; font-weight:700; cursor:pointer; }
+    a.secondary { background:#eef3f8; color:#00356b; }
+    pre { overflow:auto; max-height:280px; padding:12px; background:#f0f3f7; border-radius:6px; font-size:.82rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Checking Yale sign-in...</h1>
+    <p id="message">One moment while T-MACS confirms your signed-in session.</p>
+    <div id="actions" hidden>
+      <a id="retry" href="/.auth/login/aad">Try sign-in again</a>
+      <a class="secondary" href="/.auth/logout?post_logout_redirect_uri=/">Clear sign-in and start over</a>
+    </div>
+    <pre id="details" hidden></pre>
+  </main>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get('next') || '/app/';
+    const safeNext = next.startsWith('/app') ? next : '/app/';
+    const retry = document.getElementById('retry');
+    retry.href = '/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent('/auth-check.html?next=' + safeNext);
+
+    fetch('/.auth/me', { credentials: 'include', cache: 'no-store' })
+      .then(response => response.json())
+      .then(data => {
+        const principal = data && data.clientPrincipal;
+        if (principal) {
+          document.getElementById('message').textContent = 'Sign-in confirmed. Opening T-MACS...';
+          setTimeout(() => { window.location.replace(safeNext); }, 700);
+          return;
+        }
+
+        document.querySelector('h1').textContent = 'Sign-in did not complete';
+        document.getElementById('message').textContent = 'Yale sign-in may have succeeded, but Azure Static Web Apps did not create a T-MACS session. This usually points to the Static Web Apps auth settings, app plan, callback URL, or client secret.';
+        document.getElementById('actions').hidden = false;
+        const details = document.getElementById('details');
+        details.hidden = false;
+        details.textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(error => {
+        document.querySelector('h1').textContent = 'Could not check sign-in';
+        document.getElementById('message').textContent = error.message;
+        document.getElementById('actions').hidden = false;
+      });
+  </script>
+</body>
+</html>
