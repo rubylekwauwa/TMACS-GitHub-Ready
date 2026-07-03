@@ -1,3 +1,4 @@
+(function(){
 
   function isMobile() {
     return window.innerWidth <= 768;
@@ -125,6 +126,7 @@ function enhanceMatchButton() {
 
   matchButton.addEventListener("click", function () {
     if (!isMobile()) return;
+    if (typeof showMobileMatchCelebrationPage === "function") return;
 
     setTimeout(() => {
       showCelebrationScreen();
@@ -152,6 +154,9 @@ function enhanceMatchButton() {
       const views = ["match", "browse", "map", "guide"];
       button.setAttribute("data-view", views[index]);
     });
+
+    const requestedView = new URLSearchParams(window.location.search).get("view") || "match";
+    window.setMobileView(requestedView);
 
     enhanceMatchButton();
     enhanceMentorCards();
