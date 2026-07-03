@@ -52,6 +52,7 @@ If sign-in fails, check these first:
 - The Entra app registration must include this redirect URI exactly: `https://tmacsmentornetwork.yale.edu/.auth/login/aad/callback`.
 - After changing app settings or auth config, redeploy or restart the Static Web App before testing again.
 
-## Sign-in note
 
-The auth config uses the Microsoft Entra v2.0 issuer and passes `prompt=select_account` so Microsoft asks the user to choose or re-enter a Yale account instead of silently reusing a stale Windows-connected token.
+## Duo loop note
+
+If Yale sign-in reaches Duo and then returns to the sign-in page, the Microsoft/Yale side is authenticating but Azure Static Web Apps is not establishing its final app session. Check that the Static Web App is on the Standard plan, the custom auth config has redeployed, `AAD_CLIENT_SECRET` is current, and the Entra redirect URI is configured as a Web redirect URI.
