@@ -1188,33 +1188,44 @@ a.profile-link {
     height: auto;
   }
 
-/* Desktop launch polish: preserve layout, reduce vertical scrolling */
+/* Desktop launch polish: preserve layout, fit above fixed footer */
 @media (min-width: 1001px) {
+  body {
+    overflow: hidden;
+  }
+
   header {
-    padding: 14px 36px;
+    padding: 10px 32px;
   }
 
   header h1 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   header p {
-    margin-top: 5px;
-    font-size: 15px;
+    margin-top: 3px;
+    font-size: 14px;
   }
 
   .stats,
   .network-note {
-    margin-top: 5px;
+    margin-top: 4px;
+    font-size: 12px;
   }
 
   .container {
-    height: calc(100vh - 142px);
+    height: calc(100vh - 168px);
     min-height: 0;
+    overflow: hidden;
+  }
+
+  .sidebar,
+  #detailPanel {
+    overflow-y: auto;
   }
 
   .site-footer {
-    min-height: 46px;
-    padding: 7px 24px;
+    min-height: 44px;
+    padding: 6px 22px;
   }
 }
