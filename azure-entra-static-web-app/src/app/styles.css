@@ -1187,13 +1187,11 @@ a.profile-link {
     max-width: 120px;
     height: auto;
   }
-}
-}
- 
-/* Desktop launch polish: keep full app visible without scrolling */
+
+  /* Desktop launch polish: balanced three-column app layout */
 @media (min-width: 1001px) {
   header {
-    padding: 14px 36px;
+    padding: 12px 32px;
   }
 
   header h1 {
@@ -1201,23 +1199,35 @@ a.profile-link {
   }
 
   header p {
-    margin-top: 6px;
+    margin-top: 4px;
     font-size: 15px;
   }
 
   .stats,
   .network-note {
-    margin-top: 6px;
+    margin-top: 5px;
   }
 
   .container {
-    height: calc(100vh - 142px);
+    height: calc(100vh - 136px);
     min-height: 0;
   }
 
-  .sidebar,
+  .sidebar {
+    width: 28%;
+    min-width: 300px;
+    padding: 16px;
+  }
+
+  .map-shell {
+    width: 46%;
+    min-width: 420px;
+  }
+
   #detailPanel {
-    padding: 18px;
+    width: 26%;
+    min-width: 300px;
+    padding: 16px;
   }
 
   .map-shell,
@@ -1226,21 +1236,25 @@ a.profile-link {
   }
 
   .welcome-card {
-    padding: 20px;
-    max-height: calc(100vh - 185px);
+    padding: 18px;
+    max-height: calc(100vh - 178px);
     overflow-y: auto;
   }
 
   .welcome-card h2 {
-    font-size: 23px;
+    font-size: 22px;
+  }
+
+  .welcome-subtitle {
+    margin-bottom: 12px;
   }
 
   .welcome-step {
-    padding: 12px 0;
+    padding: 10px 0;
   }
 
   .site-footer {
-    min-height: 48px;
-    padding: 8px 24px;
+    min-height: 46px;
+    padding: 7px 22px;
   }
 }
