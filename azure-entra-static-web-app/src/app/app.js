@@ -232,18 +232,51 @@ const mentors = [
   },
 
 {
-    name: "Brady Heward, MD",
-    city: "Vermont",
-    coords: [-72.5778, 44.5588],
-    specialties: ["Addiction psychiatry", "Child and adolescent psychiatry", "Academic medicine"],
-    focusAreas: ["Child and adolescent psychiatry", "Academic medicine"],
-    shortBlurb: "Child and Adolescent + Addiction Psychiatrist.",
-    fullBio: "More to come. ",
-    availability: "More to come.",
-    image: "https://www.uvmhealth.org/sites/default/files/styles/portrait_075_3x4_640x853/public/2024-10/Brady-Heward-MD_0.jpg?h=d94c4b90&itok=Rqkysimv",
-    link: ""
-  },
+  name: "Brady Heward, MD",
+  city: "Edmonton, Alberta",
+  coords: [-113.4938, 53.5461],
+  specialties: [
+    "Addiction psychiatry",
+    "Child and adolescent psychiatry",
+    "Academic medicine"
+  ],
+  focusAreas: [
+    "Addiction psychiatry",
+    "Adolescent mental health",
+    "Rural health",
+    "Medical education",
+    "Academic medicine",
+    "Career transitions",
+    "Work-life integration",
+    "Parenting during training"
+  ],
+  shortBlurb: "Child & Adolescent and Addiction Psychiatrist with expertise in medical education and rural mental health.",
+  fullBio: "After completing Yale Psychiatry Residency, I completed the Yale Public Psychiatry Fellowship, then moved to Vermont for Child & Adolescent Psychiatry Fellowship before returning to Yale for an Addiction Psychiatry Fellowship. I then joined the University of Vermont, where I worked in inpatient child psychiatry and outpatient adult addiction psychiatry. A few years later, I transitioned into the role of Director of Medical Student Education for Psychiatry. I have also been an active participant in a HRSA-funded initiative providing rural education to primary care providers on the treatment of substance use disorders. In July 2026, I transitioned to an academic position at the University of Alberta in Edmonton. My work includes rural consultation and education for primary care providers, telehealth services with First Nations populations across rural Alberta, and adolescent substance use treatment in the Edmonton area. During training, I had two children, with my third born during my third year of residency. I enjoy mentoring residents and trainees interested in addiction psychiatry, adolescent mental health, rural health, medical education, and balancing family life during training and early career development.",
+  availability: "Significant availability during the week of July 20–24 and intermittent availability throughout August.",
+  image: "https://www.uvmhealth.org/sites/default/files/styles/portrait_075_3x4_640x853/public/2024-10/Brady-Heward-MD_0.jpg?h=d94c4b90&itok=Rqkysimv",
+  link: ""
+},
 
+{
+  name: "Taiwo Alonge, MD",
+  city: "New York City, NY",
+  coords: [-74.0060, 40.7128],
+  specialties: [
+    "Child and adolescent psychiatry"
+  ],
+  focusAreas: [
+    "Identity/Lived Experience",
+    "Entrepreneurship",
+    "Culturally Responsive Care",
+    "Financial Literacy"
+  ],
+  shortBlurb: "Child & Adolescent Psychiatrist passionate about culturally responsive mentorship and innovation.",
+  fullBio: "Biography coming soon.",
+  availability: "Coming soon.",
+  image: "https://media.licdn.com/dms/image/v2/D4E03AQElZkNzV28IAQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1712583460911?e=1784764800&v=beta&t=k_z7NXuEfcX6CYYx_gAGyRF1YfTCzVVe5k5lUJgBDBI",
+  link: ""
+},
+  
   {
     name: "Andi Diaz Stransky, MD",
     city: "Durham, NC",
