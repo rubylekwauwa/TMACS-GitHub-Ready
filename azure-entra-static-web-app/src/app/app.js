@@ -793,7 +793,7 @@ function flyToMentor(m) {
 }
 
 function viewAllMentorsOnMap() {
-  const list = currentRenderedList.length ? currentRenderedList : mentors;
+const list = mentors;
   const displayCoords = markerDisplayCoordsForList(list);
   const coords = Object.values(displayCoords);
 
