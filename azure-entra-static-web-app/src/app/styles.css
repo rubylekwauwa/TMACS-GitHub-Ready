@@ -22,35 +22,38 @@ body {
 header {
   background: linear-gradient(135deg, var(--yale-blue), var(--yale-blue-dark));
   color: white;
-  padding: 22px 36px;
+  padding: 12px 36px;
 }
 
 header h1 {
   margin: 0;
   font-family: 'Libre Baskerville', serif;
-  font-size: 26px;
+  font-size: 24px;
+  line-height: 1.1;
 }
 
 header p {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   font-size: 16px;
+  line-height: 1.25;
   opacity: 0.95;
 }
 
 .stats {
-  margin-top: 8px;
+  margin-top: 5px;
   font-size: 13px;
   opacity: 0.95;
   font-weight: 600;
 }
 
 .network-note {
-  margin-top: 8px;
+  margin-top: 5px;
   font-size: 12px;
   opacity: 0.84;
   max-width: 700px;
   line-height: 1.45;
   font-style: italic;
+  margin-bottom: 0;
 }
 
 .container {
