@@ -1188,10 +1188,10 @@ a.profile-link {
     height: auto;
   }
 
-  /* Desktop launch polish: balanced three-column app layout */
+/* Desktop launch polish: preserve layout, reduce vertical scrolling */
 @media (min-width: 1001px) {
   header {
-    padding: 12px 32px;
+    padding: 14px 36px;
   }
 
   header h1 {
@@ -1199,7 +1199,7 @@ a.profile-link {
   }
 
   header p {
-    margin-top: 4px;
+    margin-top: 5px;
     font-size: 15px;
   }
 
@@ -1209,52 +1209,12 @@ a.profile-link {
   }
 
   .container {
-    height: calc(100vh - 136px);
+    height: calc(100vh - 142px);
     min-height: 0;
-  }
-
-  .sidebar {
-    width: 28%;
-    min-width: 300px;
-    padding: 16px;
-  }
-
-  .map-shell {
-    width: 46%;
-    min-width: 420px;
-  }
-
-  #detailPanel {
-    width: 26%;
-    min-width: 300px;
-    padding: 16px;
-  }
-
-  .map-shell,
-  #map {
-    height: 100%;
-  }
-
-  .welcome-card {
-    padding: 18px;
-    max-height: calc(100vh - 178px);
-    overflow-y: auto;
-  }
-
-  .welcome-card h2 {
-    font-size: 22px;
-  }
-
-  .welcome-subtitle {
-    margin-bottom: 12px;
-  }
-
-  .welcome-step {
-    padding: 10px 0;
   }
 
   .site-footer {
     min-height: 46px;
-    padding: 7px 22px;
+    padding: 7px 24px;
   }
 }
