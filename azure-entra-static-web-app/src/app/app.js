@@ -2142,6 +2142,7 @@ applyVoiceTourCue = function(cueName) {
   }
 };
 (function enhanceMobileMatchExperience() {
+  if (window.matchMedia("(min-width: 769px)").matches) return;
   const matchBox = document.querySelector(".match-box");
   const matchButton = matchBox ? matchBox.querySelector("button") : null;
 
