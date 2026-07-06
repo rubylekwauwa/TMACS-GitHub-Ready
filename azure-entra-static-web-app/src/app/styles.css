@@ -1188,14 +1188,14 @@ a.profile-link {
     height: auto;
   }
 
-/* Desktop launch polish: preserve layout, fit above fixed footer */
+/* Desktop launch polish: mimic 80% browser zoom without changing mobile */
 @media (min-width: 1001px) {
   body {
     overflow: hidden;
   }
 
   header {
-    padding: 10px 32px;
+    padding: 12px 32px;
   }
 
   header h1 {
@@ -1203,7 +1203,7 @@ a.profile-link {
   }
 
   header p {
-    margin-top: 3px;
+    margin-top: 4px;
     font-size: 14px;
   }
 
@@ -1214,14 +1214,49 @@ a.profile-link {
   }
 
   .container {
-    height: calc(100vh - 168px);
+    height: calc(100vh - 150px);
     min-height: 0;
     overflow: hidden;
   }
 
   .sidebar,
   #detailPanel {
+    padding: 16px;
     overflow-y: auto;
+  }
+
+  .match-box {
+    padding: 12px;
+  }
+
+  input,
+  select,
+  button {
+    padding: 9px 10px;
+    margin-bottom: 9px;
+    font-size: 12px;
+  }
+
+  .welcome-card {
+    padding: 18px;
+    max-height: calc(100vh - 190px);
+    overflow-y: auto;
+  }
+
+  .welcome-card h2 {
+    font-size: 22px;
+  }
+
+  .welcome-subtitle {
+    margin-bottom: 10px;
+  }
+
+  .welcome-step {
+    padding: 9px 0;
+  }
+
+  .welcome-step p {
+    font-size: 12px;
   }
 
   .site-footer {
