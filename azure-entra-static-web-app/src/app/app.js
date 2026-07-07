@@ -272,11 +272,11 @@ link: ""
   focusAreas: [
     "Identity/lived experience",
     "Private practice",
-    "Entrepeneurship",
+    "Entrepreneurship",
     "Technology/tech safety",
     "Culturally responsive care"
   ],
-  shortBlurb: "shortBlurb: "Black child, adolescent, and adult psychiatrist in private practice providing psychotherapy and medication management. Passionate about technology and tech safety, community mental health, writing, speaking, and mentoring the next generation of psychiatrists.""
+  shortBlurb: "Black child, adolescent, and adult psychiatrist in private practice providing psychotherapy and medication management. Passionate about technology and tech safety, community mental health, writing, speaking, and mentoring the next generation of psychiatrists.",
   fullBio: "Hi there! My name is Taiwo Alonge and I am a child, adolescent, and adult psychiatrist. I graduated from Yale General Psychiatry Residency in 2024 and recently completed my Child and Adolescent Psychiatry Fellowship at New York Presbyterian Columbia/Cornell this past June 2026. Clinically, I am a new private practice psychiatrist based in New York City planning to work with people and their families across the lifespan with a primary focus on psychotherapy and medication management. I am also doing some clinical work with amateur and professional athletes which I began in residency at Student Health. Additionally, I do work at the intersection of mental health and technology/tech safety, specifically thinking about how technological innovations can support mental health as well as developing strategy and guardrails to protect people from possible harms related to tech including screens, social media, AI, and related areas. I have a lot of experience doing community work with organizations interested in the wellbeing of Black and Brown people and conduct workshops exploring the impact and ways to address patriarchy in addition to other systems of oppression and their connection to community mental health. Lastly, I am a public speaker and writer. Always excited to serve as a mentor for psychiatry trainees and pay it forward!",
   availability: "Widely available outside of August 19–30.",
   bookingType: "email",
