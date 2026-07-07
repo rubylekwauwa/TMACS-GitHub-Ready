@@ -1266,4 +1266,22 @@ a.profile-link {
     min-height: 44px;
     padding: 6px 22px;
   }
+  /* Hide mobile-only back button on desktop */
+.mobile-back-to-results {
+  display: none !important;
+}
+
+/* Move View All Mentors slightly inward on desktop */
+.map-reset-button {
+  top: 18px;
+  left: 26px;
+}
+
+/* Raise and tighten the map tip so footer doesn't cover it */
+.map-access-note {
+  bottom: 44px;
+  padding: 8px 12px;
+  font-size: 11px;
+  line-height: 1.3;
+}
 }
