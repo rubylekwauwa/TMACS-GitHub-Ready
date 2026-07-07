@@ -1190,7 +1190,7 @@ a.profile-link {
     max-width: 120px;
     height: auto;
   }
-
+}
 /* Desktop launch polish: mimic 80% browser zoom without changing mobile */
 @media (min-width: 1001px) {
   body {
