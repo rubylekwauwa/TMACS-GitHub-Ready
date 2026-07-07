@@ -281,7 +281,7 @@ link: ""
   availability: "Widely available outside of August 19–30.",
   bookingType: "email",
   email: "taiwopalonge@gmail.com",
-  image: "https://media.licdn.com/dms/image/v2/D4E03AQElZkNzV28IAQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1712583460911?e=1784764800&v=beta&t=k_z7NXuEfcX6CYYx_gAGyRF1YfTCzVVe5k5lUJgBDBI",
+  image: "blob:https://outlook.office365.com/6948befb-dbba-41ea-8d2f-0c72e5ade052",
   link: ""
 },
   
