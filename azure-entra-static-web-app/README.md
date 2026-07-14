@@ -66,3 +66,6 @@ If `https://tmacsmentornetwork.yale.edu/.auth/login/aad` shows an Azure `404: No
 ## Managed auth fallback
 
 The current `staticwebapp.config.json` intentionally uses Azure Static Web Apps managed Microsoft Entra auth and does not include a custom `auth.identityProviders` block. This should make `/.auth/login/aad` available on all Static Web Apps plans. Once the built-in auth route works, Yale ITS can decide whether tenant-restricted custom auth is still required; custom auth requires the Standard plan.
+
+
+
