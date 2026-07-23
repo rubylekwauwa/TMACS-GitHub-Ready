@@ -10,7 +10,7 @@ Analytics is deliberately isolated from application behavior:
 - Only allowlisted event names, tag names, and tag values are accepted.
 - Names, email addresses, URLs, search text, profile text, authentication identifiers, and other free text are not accepted.
 - Clarity unavailability does not block page loading, redirects, navigation, matching, Mapbox, profiles, scheduling, or the tour.
-- One delegated click listener covers current and dynamically inserted navigation, mentor-card, Mobile Back, and scheduling controls.
+- One delegated click listener covers current and dynamically inserted navigation, mentor-card, Mobile Back, scheduling, feedback, external-link, and map-reset controls.
 
 The public landing page loads the module before its desktop redirect so the landing event can be queued without changing redirect behavior. The authenticated app loads it in the document head. The previous inline Clarity loader was moved into the centralized module; the project ID remains `x2jiagxeku`.
 
@@ -28,7 +28,7 @@ The public landing page loads the module before its desktop redirect so the land
 | `map_view_opened` | The authenticated app opens or is initially requested in Map view. |
 | `tour_view_opened` | The authenticated app opens or is initially requested in Tour/Guide view. |
 
-Map-region events remain deferred. Phase 3A covers mentor engagement and scheduling, Phase 3B covers matching, Phase 3C covers Browse search and filtering, and Phase 3D covers the guided tour.
+`map_region_viewed` is intentionally omitted because T-MACS has no approved broad-region taxonomy. Phase 3A covers mentor engagement and scheduling, Phase 3B covers matching, Phase 3C covers Browse search and filtering, Phase 3D covers the guided tour, and Phase 3E completes Map, engagement, and broad timing instrumentation.
 
 ## Phase 3A mentor engagement and scheduling registry
 
@@ -107,12 +107,31 @@ Definitions:
 - **Skipped:** an active run ended through an existing cancellation/replace path before all three steps completed.
 - **Completed:** all three numbered steps reached the existing completed state; later duplicate cues do not repeat it.
 
+## Phase 3E Map, engagement, and timing registry
+
+Map initialization, coordinates, viewport behavior, and reset behavior remain unchanged. The existing marker activation transitions call the centralized module with the existing opaque mentor ID.
+
+| Event | Trigger | Safe dimensions | Deduplication rule | Files involved |
+| --- | --- | --- | --- | --- |
+| `map_view_opened` | Map navigation is selected or an initial `?view=map` is requested. | `selected_navigation_mode=map` | Once per actual centralized view-open transition; overlapping mobile handlers do not add analytics listeners. | `src/analytics.js` |
+| `map_opened` | The same validated Map view transition occurs. | `discovery_method=map`, `map_used=yes` | Once per view-open transition. It is separate from navigation so Map adoption can be analyzed directly. | `src/analytics.js` |
+| `map_marker_selected` | An existing Mapbox marker is activated by click, Enter, or Space before the unchanged profile-opening behavior. | `mentor_id` | Once per actual marker activation. Click and keyboard paths are mutually exclusive. | `src/analytics.js`, `src/app/app.js` |
+| `map_reset` | The existing `resetMapButton` is activated. | None | Once per actual button activation through centralized delegation. Navigation-driven mobile viewport resets are not reported as explicit resets. | `src/analytics.js` |
+| `error_state_seen` | The Yale session-check page displays its existing missing-session or fetch-failure state. | `error_type` | Once when the existing visible state is reached; displayed response/error details are never passed to analytics. | `src/analytics.js`, `src/auth-check.html` |
+| `external_link_clicked` | A dynamically available HTTP(S) feedback, mentor-profile, or scheduling link is activated. | `external_link_type` | Once per actual delegated activation. URLs and hostnames are not transmitted. | `src/analytics.js` |
+| `feedback_link_clicked` | An existing success, issue, or idea feedback-form link is activated. | `feedback_type` | Once per actual delegated activation. Form URLs are not transmitted. | `src/analytics.js` |
+| `app_to_discovery_time` | The session's first Match, Browse, or Map action follows app load. | `time_band` | Once per browser session. | `src/analytics.js` |
+| `discovery_to_mentor_profile_time` | The first mentor profile opens after discovery begins. | `time_band` | Once per browser session. | `src/analytics.js` |
+| `mentor_profile_to_scheduling_time` | The first scheduling option is activated after a mentor profile opens. | `time_band` | Once per browser session. | `src/analytics.js` |
+
+`map_region_viewed` is not implemented. No broad-region taxonomy has been approved, and T-MACS does not infer one from coordinates, cities, marker clusters, viewport bounds, or user location.
+
 ## Custom tags
 
 | Tag | Allowed values |
 | --- | --- |
 | `device_experience` | `mobile`, `desktop` |
-| `entry_route` | `public_landing`, `authenticated_app` |
+| `entry_route` | `public_landing`, `authenticated_app`, `auth_check` |
 | `selected_navigation_mode` | `match`, `browse`, `map`, `tour` |
 | `visit_type` | `first_time`, `returning` |
 | `application_area` | `public`, `authenticated` |
@@ -130,21 +149,43 @@ Definitions:
 | `search_length_band` | `none`, `under_10`, `10_to_24`, `25_plus` |
 | `tour_step` | `1`, `2`, `3` |
 | `tour_completion_status` | `not_completed`, `completed` |
+| `match_used` | `yes`, `no` |
+| `browse_used` | `yes`, `no` |
+| `map_used` | `yes`, `no` |
+| `scheduling_intent_reached` | `yes`, `no` |
+| `discovery_method` | `match`, `browse`, `map` |
+| `time_band` | `under_30_seconds`, `30_to_60_seconds`, `1_to_3_minutes`, `over_3_minutes` |
+| `error_type` | `authentication_session_missing`, `authentication_check_failed` |
+| `external_link_type` | `mentor_profile`, `scheduling`, `feedback`, `other` |
+| `feedback_type` | `success`, `issue`, `idea` |
 
 First-time/returning status uses only a local `localStorage` flag. It does not identify a person and is not tied to Yale authentication.
 
 ## Available funnels
 
-Phase 2 establishes these funnel foundations:
+1. Landing: `landing_page_viewed` → `yale_sign_in_clicked` → `app_loaded`.
+2. Discovery selection: `app_loaded` → navigation event → `match_view_opened`, `browse_view_opened`, or `map_view_opened`; `discovery_method` supplies the bounded method dimension.
+3. Discovery results: `match_started` or `browse_started` → corresponding `*_results_displayed` → `mentor_profile_opened`. Map discovery uses `map_opened` → `map_marker_selected` → `mentor_profile_opened`.
+4. Scheduling: `mentor_profile_opened` → `scheduling_option_clicked` → session-once `scheduling_intent_reached`.
+5. Tour: `tour_started` → `tour_completed` → later Match/Browse/Map navigation and corresponding discovery view event.
 
-1. `landing_page_viewed` → `yale_sign_in_clicked` → `app_loaded`
-2. `app_loaded` → Match/Browse/Map/Tour navigation → corresponding `*_view_opened` event
+The `match_used`, `browse_used`, `map_used`, tour-completion, scheduling-intent, and discovery-method tags provide funnel-compatible session segmentation without identity data.
 
-Phase 3A supports `mentor_card_clicked` to `mentor_profile_opened` to `scheduling_option_clicked`, and `mentor_profile_opened` to `scheduling_intent_reached`. Phase 3B adds `match_view_opened` to `match_started` to `match_completed` to `match_results_displayed` to `match_result_opened`. Phase 3C adds `browse_view_opened` to `browse_started` or `browse_search_used` to `browse_results_displayed` to `mentor_profile_opened`. Phase 3D adds `tour_view_opened` to `tour_started` to numbered `tour_step_viewed` events to `tour_completed`.
+## Time-band definitions
+
+Elapsed time is calculated internally with `performance.now()`. No timestamp or exact duration is sent. Each timing event fires at most once per browser session and uses only:
+
+- `under_30_seconds`: less than 30 seconds
+- `30_to_60_seconds`: at least 30 seconds and less than 60 seconds
+- `1_to_3_minutes`: at least 60 seconds and less than 180 seconds
+- `over_3_minutes`: at least 180 seconds
+
+The clocks measure app load to first Match/Browse/Map action, first discovery action to first profile opening, and the current profile opening to the first scheduling activation.
 
 ## Privacy protections
 
 - No Yale NetID, identity claim, name, email address, mentor biography, scheduling URL, or search value is sent.
+- No coordinate, viewport bound, city, inferred region, user location, exact timestamp, exact duration, URL, or hostname is sent.
 - Matching keywords are reduced to `keyword_used` and a broad character-length band. Keyword content is never passed to the analytics module or used in the local result-set signature.
 - Browse searches are reduced to `search_used` and a broad character-length band. Search content, names, cities, and locations are never passed to analytics or stored in the result-state signature.
 - Specialty and Focus values remain local comparison state. Only the nonsensitive filter type is transmitted, including for identity or lived-experience selections.
@@ -156,6 +197,12 @@ Phase 3A supports `mentor_card_clicked` to `mentor_profile_opened` to `schedulin
 - The module does not call Clarity's identity API.
 - The module does not reproduce Clarity's built-in dead-click, rage-click, or scrolling measurements.
 - No external analytics service was added.
+
+## Mentor-ID mapping and administrator-dashboard compatibility
+
+Mentor analytics IDs come from the separate `MENTOR_ANALYTICS_IDS` lookup in `src/app/app.js`. Mentor records are unchanged. IDs use the stable opaque form `mentor_001`; Clarity receives no mentor name, contact data, location, or biography.
+
+The fixed event names, bounded tags, result/time bands, and opaque IDs can feed a future administrator dashboard through aggregated Clarity exports. A future dashboard must preserve these allowlists, report groups rather than identifiable sessions, suppress small cohorts where appropriate, and must not join opaque IDs to contact or authentication data in analytics. No dashboard is implemented in this phase.
 
 ## Browser testing
 

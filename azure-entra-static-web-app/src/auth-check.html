@@ -24,6 +24,7 @@
     </div>
     <pre id="details" hidden></pre>
   </main>
+  <script src="/analytics.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
     const next = params.get('next') || '/app/';
@@ -47,11 +48,17 @@
         const details = document.getElementById('details');
         details.hidden = false;
         details.textContent = JSON.stringify(data, null, 2);
+        if (window.TMACSAnalytics) {
+          window.TMACSAnalytics.trackEvent('error_state_seen', { error_type: 'authentication_session_missing' });
+        }
       })
       .catch(error => {
         document.querySelector('h1').textContent = 'Could not check sign-in';
         document.getElementById('message').textContent = error.message;
         document.getElementById('actions').hidden = false;
+        if (window.TMACSAnalytics) {
+          window.TMACSAnalytics.trackEvent('error_state_seen', { error_type: 'authentication_check_failed' });
+        }
       });
   </script>
 </body>

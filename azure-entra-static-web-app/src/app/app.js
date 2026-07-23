@@ -862,6 +862,10 @@ function render(list, mode = "browse") {
     markerEl.addEventListener("mouseenter", () => popup.addTo(map));
     markerEl.addEventListener("mouseleave", () => popup.remove());
     markerEl.addEventListener("click", () => {
+      const analytics = tmacsAnalytics();
+      if (analytics && typeof analytics.trackMapMarkerSelected === "function") {
+        analytics.trackMapMarkerSelected(mentorAnalyticsId(m));
+      }
       showMentor(m);
       if (window.innerWidth <= 768 && typeof window.setMobileView === "function") {
         window.setMobileView("profile");
@@ -870,6 +874,10 @@ function render(list, mode = "browse") {
     markerEl.addEventListener("keydown", event => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
+        const analytics = tmacsAnalytics();
+        if (analytics && typeof analytics.trackMapMarkerSelected === "function") {
+          analytics.trackMapMarkerSelected(mentorAnalyticsId(m));
+        }
         showMentor(m);
       }
     });
