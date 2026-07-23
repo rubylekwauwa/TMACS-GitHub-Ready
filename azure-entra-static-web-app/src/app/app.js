@@ -362,6 +362,12 @@ function tmacsAnalytics() {
   return window.TMACSAnalytics || null;
 }
 
+function trackTmacsEvent(eventName, properties) {
+  const analytics = tmacsAnalytics();
+  if (!analytics || typeof analytics.trackEvent !== "function") return false;
+  return analytics.trackEvent(eventName, properties);
+}
+
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/mapbox/light-v10",
@@ -662,8 +668,15 @@ function showMentor(m) {
   clearWelcomeTourClasses();
   const analyticsId = mentorAnalyticsId(m);
   const analytics = tmacsAnalytics();
+  let profileVisitOpened = false;
   if (analytics && typeof analytics.trackMentorProfileOpened === "function") {
-    analytics.trackMentorProfileOpened(analyticsId);
+    profileVisitOpened = analytics.trackMentorProfileOpened(analyticsId);
+  }
+  if (profileVisitOpened && m.matchPercent !== undefined && m.matchPercent !== null) {
+    trackTmacsEvent("match_result_opened", {
+      mentor_id: analyticsId,
+      match_score_band: matchScoreBand(m.matchPercent)
+    });
   }
   selectedMentorName = m.name;
 
@@ -1323,13 +1336,101 @@ function scoreMentor(m, selectedSpecialty, selectedFocus, keyword) {
   };
 }
 
+let previousSubmittedMatchCriteria = {
+  specialty: "",
+  focus: "",
+  keywordUsed: false
+};
+let lastDisplayedMatchResultSignature = null;
+
+function activeMatchFilterCountBand(criteria) {
+  const count = [criteria.specialty, criteria.focus, criteria.keywordUsed].filter(Boolean).length;
+  return ["zero", "one", "two", "three"][count];
+}
+
+function matchKeywordLengthBand(keyword) {
+  const length = keyword.length;
+  if (length === 0) return "none";
+  if (length < 10) return "under_10";
+  if (length < 25) return "10_to_24";
+  return "25_plus";
+}
+
+function matchResultCountBand(count) {
+  if (count === 0) return "zero";
+  if (count <= 5) return "one_to_five";
+  if (count <= 10) return "six_to_ten";
+  return "eleven_plus";
+}
+
+function matchScoreBand(percent) {
+  if (percent === 100) return "100";
+  if (percent >= 75) return "75_to_99";
+  if (percent >= 50) return "50_to_74";
+  return "under_50";
+}
+
+function currentMatchAnalyticsProperties(criteria, keyword, ranked) {
+  const properties = {
+    active_filter_count_band: activeMatchFilterCountBand(criteria),
+    keyword_used: criteria.keywordUsed ? "yes" : "no",
+    keyword_length_band: matchKeywordLengthBand(keyword)
+  };
+  if (ranked) {
+    properties.result_count_band = matchResultCountBand(ranked.length);
+    if (ranked.length) {
+      properties.match_score_band = matchScoreBand(Math.max(...ranked.map(m => m.matchPercent || 0)));
+    }
+  }
+  return properties;
+}
+
+function trackSubmittedMatchFilterChanges(criteria, keyword) {
+  const commonProperties = currentMatchAnalyticsProperties(criteria, keyword);
+  const changes = [
+    { type: "specialty", previous: previousSubmittedMatchCriteria.specialty, current: criteria.specialty },
+    { type: "focus", previous: previousSubmittedMatchCriteria.focus, current: criteria.focus },
+    { type: "keyword", previous: previousSubmittedMatchCriteria.keywordUsed, current: criteria.keywordUsed }
+  ];
+
+  changes.forEach(change => {
+    if (change.previous === change.current) return;
+    if (change.previous) {
+      trackTmacsEvent("match_filter_removed", { ...commonProperties, filter_type: change.type });
+    }
+    if (change.current) {
+      trackTmacsEvent("match_filter_selected", { ...commonProperties, filter_type: change.type });
+    }
+  });
+
+  previousSubmittedMatchCriteria = { ...criteria };
+}
+
+function matchResultSetSignature(ranked) {
+  return ranked
+    .map(m => `${mentorAnalyticsId(m)}:${m.matchPercent}`)
+    .join("|");
+}
+
 function runMatch() {
   const selectedSpecialty = document.getElementById("matchSpecialty").value;
   const selectedFocus = document.getElementById("matchFocus").value;
   const keyword = document.getElementById("matchKeyword").value.trim();
   const maxScore = getMatchMaxScore(selectedSpecialty, selectedFocus, keyword);
+  const criteria = {
+    specialty: selectedSpecialty,
+    focus: selectedFocus,
+    keywordUsed: keyword.length > 0
+  };
+  const analytics = tmacsAnalytics();
+  if (analytics && typeof analytics.trackMatchViewOpened === "function") {
+    analytics.trackMatchViewOpened();
+  }
+  trackSubmittedMatchFilterChanges(criteria, keyword);
 
   if (maxScore === 0) {
+    trackTmacsEvent("match_reset", currentMatchAnalyticsProperties(criteria, keyword));
+    lastDisplayedMatchResultSignature = null;
     selectedMentorName = null;
     renderWelcomePanel();
     resetResultsHeader();
@@ -1339,6 +1440,7 @@ function runMatch() {
 
   selectedMentorName = null;
   renderWelcomePanel();
+  trackTmacsEvent("match_started", currentMatchAnalyticsProperties(criteria, keyword));
 
   const ranked = mentors
     .map(m => {
@@ -1361,9 +1463,20 @@ function runMatch() {
       return b.matchPercent - a.matchPercent || b.matchScore - a.matchScore || a.name.localeCompare(b.name);
     });
 
-render(ranked, "match");
-setMatchResultsHeader(ranked);
-window.setTimeout(showMobileMatchCelebrationPage, 120);
+  const resultProperties = currentMatchAnalyticsProperties(criteria, keyword, ranked);
+  trackTmacsEvent("match_completed", resultProperties);
+
+  render(ranked, "match");
+  setMatchResultsHeader(ranked);
+
+  const resultSignature = matchResultSetSignature(ranked);
+  if (resultSignature !== lastDisplayedMatchResultSignature) {
+    lastDisplayedMatchResultSignature = resultSignature;
+    trackTmacsEvent("match_results_displayed", resultProperties);
+    if (ranked.length === 0) trackTmacsEvent("no_match_results_seen", resultProperties);
+  }
+
+  window.setTimeout(showMobileMatchCelebrationPage, 120);
 }
 
 document.getElementById("search").addEventListener("input", () => refresh(true));

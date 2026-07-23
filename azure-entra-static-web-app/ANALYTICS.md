@@ -28,7 +28,7 @@ The public landing page loads the module before its desktop redirect so the land
 | `map_view_opened` | The authenticated app opens or is initially requested in Map view. |
 | `tour_view_opened` | The authenticated app opens or is initially requested in Tour/Guide view. |
 
-Feature events for matching, filters, map regions, and tour steps remain deferred. Phase 3A adds only mentor engagement and scheduling events.
+Map-region, browse-filtering, and tour-step events remain deferred. Phase 3A covers mentor engagement and scheduling; Phase 3B covers only the matching journey.
 
 ## Phase 3A mentor engagement and scheduling registry
 
@@ -47,6 +47,28 @@ Feature events for matching, filters, map regions, and tour steps remain deferre
 
 Mentor website links (`.profile-link`) are not scheduling controls and do not fire scheduling events.
 
+## Phase 3B matching registry
+
+Matching analytics are emitted from `runMatch()` and the existing `showMentor()` transition, not from extra per-control or mobile listeners.
+
+| Event | Trigger | Safe dimensions | Deduplication rule | Files involved |
+| --- | --- | --- | --- | --- |
+| `match_view_opened` | Match is requested through navigation, an initial `?view=match`, or the first submitted matching action. | `selected_navigation_mode=match` | Once per document. Programmatic and overlapping mobile paths converge on the same once-key. | `src/analytics.js`, `src/app/app.js` |
+| `match_filter_selected` | A submitted criterion changes from inactive to active; changing one predefined selection to another also submits a remove followed by a select. | `filter_type`, `active_filter_count_band`, `keyword_used`, `keyword_length_band` | Once per changed filter type in the submitted attempt. Raw values are retained only transiently for local comparison and are never passed to analytics. | `src/app/app.js` |
+| `match_filter_removed` | A previously submitted criterion is absent or replaced in the next submitted attempt. | `filter_type`, `active_filter_count_band`, `keyword_used`, `keyword_length_band` | Once per changed filter type in the submitted attempt. | `src/app/app.js` |
+| `match_started` | The Match button submits at least one active criterion, immediately before the existing ranking calculation begins. | `active_filter_count_band`, `keyword_used`, `keyword_length_band` | Exactly once per qualifying `runMatch()` call. A no-criteria submission is a reset, not an attempt. | `src/app/app.js` |
+| `match_completed` | The existing mentor scoring and sorting calculation has produced the final ranked array, before rendering. | `active_filter_count_band`, `result_count_band`, `match_score_band`, `keyword_used`, `keyword_length_band` | Exactly once per completed qualifying `runMatch()` call. | `src/app/app.js` |
+| `match_results_displayed` | The completed ranked array has been passed through the existing `render(..., "match")` and match-header update. | `active_filter_count_band`, `result_count_band`, `match_score_band`, `keyword_used`, `keyword_length_band` | Once per distinct local result signature. Repeating criteria that produce the identical ordered IDs and scores does not fire again until reset or a different result set appears. The signature is never transmitted. | `src/app/app.js` |
+| `match_result_opened` | An existing mentor profile visit begins from an object carrying a calculated match percentage. | `mentor_id`, `match_score_band` | Once per matching-result profile visit, using the existing profile-visit deduplication. | `src/app/app.js` |
+| `match_reset` | The Match button is submitted with zero active criteria and the existing browse reset path runs. | `active_filter_count_band=zero`, `keyword_used=no`, `keyword_length_band=none` | Once per no-criteria `runMatch()` call. It does not fire `match_started` or `match_completed`. | `src/app/app.js` |
+| `no_match_results_seen` | A completed matching attempt actually renders an empty ranked array. | `active_filter_count_band`, `result_count_band=zero`, `keyword_used`, `keyword_length_band` | Once with the distinct empty result set. The current algorithm normally ranks the full mentor list, so this is a defensive zero-results path. | `src/app/app.js` |
+
+Definitions:
+
+- **Started:** at least one criterion was submitted and execution is about to enter the unchanged scoring/ranking calculation.
+- **Completed:** scoring and sorting returned the final ranked array without throwing.
+- **Results displayed:** the existing result renderer and match-result header completed for a result signature not already displayed.
+
 ## Custom tags
 
 | Tag | Allowed values |
@@ -60,6 +82,12 @@ Mentor website links (`.profile-link`) are not scheduling controls and do not fi
 | `previous_mentor_id` | Opaque values matching `mentor_001` through `mentor_999` |
 | `profile_section` | `specialties`, `focus_areas`, `overview`, `availability`, `scheduling` |
 | `scheduling_method` | `email`, `bookings`, `external` |
+| `filter_type` | `specialty`, `focus`, `keyword` |
+| `active_filter_count_band` | `zero`, `one`, `two`, `three` |
+| `result_count_band` | `zero`, `one_to_five`, `six_to_ten`, `eleven_plus` |
+| `match_score_band` | `under_50`, `50_to_74`, `75_to_99`, `100` |
+| `keyword_used` | `yes`, `no` |
+| `keyword_length_band` | `none`, `under_10`, `10_to_24`, `25_plus` |
 
 First-time/returning status uses only a local `localStorage` flag. It does not identify a person and is not tied to Yale authentication.
 
@@ -70,11 +98,12 @@ Phase 2 establishes these funnel foundations:
 1. `landing_page_viewed` → `yale_sign_in_clicked` → `app_loaded`
 2. `app_loaded` → Match/Browse/Map/Tour navigation → corresponding `*_view_opened` event
 
-Phase 3A additionally supports `mentor_card_clicked` to `mentor_profile_opened` to `scheduling_option_clicked`, and `mentor_profile_opened` to `scheduling_intent_reached`. Matching, filtering, and full tour funnels remain deferred.
+Phase 3A supports `mentor_card_clicked` to `mentor_profile_opened` to `scheduling_option_clicked`, and `mentor_profile_opened` to `scheduling_intent_reached`. Phase 3B adds `match_view_opened` to `match_started` to `match_completed` to `match_results_displayed` to `match_result_opened`. Browse filtering and full tour funnels remain deferred.
 
 ## Privacy protections
 
 - No Yale NetID, identity claim, name, email address, mentor biography, scheduling URL, or search value is sent.
+- Matching keywords are reduced to `keyword_used` and a broad character-length band. Keyword content is never passed to the analytics module or used in the local result-set signature.
 - Mentor records are not altered with analytics fields. A separate local lookup maps existing names to stable opaque IDs; only the opaque ID passes the analytics allowlist.
 - Event and tag inputs are normalized to short lowercase tokens.
 - Unknown event names, tag names, and tag values are rejected.

@@ -31,7 +31,15 @@
     "email_mentor_clicked",
     "bookings_link_clicked",
     "external_scheduling_link_clicked",
-    "scheduling_intent_reached"
+    "scheduling_intent_reached",
+    "match_started",
+    "match_filter_selected",
+    "match_filter_removed",
+    "match_completed",
+    "match_results_displayed",
+    "match_result_opened",
+    "match_reset",
+    "no_match_results_seen"
   ]);
 
   var allowedTagValues = {
@@ -41,7 +49,13 @@
     visit_type: new Set(["first_time", "returning"]),
     application_area: new Set(["public", "authenticated"]),
     scheduling_method: new Set(["email", "bookings", "external"]),
-    profile_section: new Set(["specialties", "focus_areas", "overview", "availability", "scheduling"])
+    profile_section: new Set(["specialties", "focus_areas", "overview", "availability", "scheduling"]),
+    filter_type: new Set(["specialty", "focus", "keyword"]),
+    active_filter_count_band: new Set(["zero", "one", "two", "three"]),
+    result_count_band: new Set(["zero", "one_to_five", "six_to_ten", "eleven_plus"]),
+    match_score_band: new Set(["under_50", "50_to_74", "75_to_99", "100"]),
+    keyword_used: new Set(["yes", "no"]),
+    keyword_length_band: new Set(["none", "under_10", "10_to_24", "25_plus"])
   };
 
   function normalizeToken(value) {
@@ -256,8 +270,16 @@
       tour: "tour_view_opened"
     };
     if (!eventByMode[mode]) return;
-    setAnalyticsTag("selected_navigation_mode", mode);
-    trackEvent(eventByMode[mode]);
+    var emitViewEvent = function () {
+      setAnalyticsTag("selected_navigation_mode", mode);
+      trackEvent(eventByMode[mode]);
+    };
+    if (mode === "match") once("match_view_opened", emitViewEvent);
+    else emitViewEvent();
+  }
+
+  function trackMatchViewOpened() {
+    trackViewOpened("match");
   }
 
   function initializeAnalytics() {
@@ -341,6 +363,7 @@
     initializeAnalytics: initializeAnalytics,
     trackEvent: trackEvent,
     setAnalyticsTag: setAnalyticsTag,
+    trackMatchViewOpened: trackMatchViewOpened,
     trackMentorProfileOpened: trackMentorProfileOpened,
     trackMentorProfileClosed: trackMentorProfileClosed,
     observeMentorProfileSections: observeMentorProfileSections
