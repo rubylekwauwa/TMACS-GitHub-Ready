@@ -328,6 +328,40 @@ link: ""
   }
 ];
 
+// Analytics IDs are deliberately separate from mentor records. Names are used
+// only as local lookup keys; only the opaque values can reach analytics.
+const MENTOR_ANALYTICS_IDS = new Map([
+  ["Arjune Rama, MD", "mentor_001"],
+  ["Uche Aneni, MD", "mentor_002"],
+  ["Gwendolyn Lopez-Cohen, MD", "mentor_003"],
+  ["Guillermo Valdes, MD", "mentor_004"],
+  ["Beth Grunschel, MD", "mentor_005"],
+  ["Falisha Gilman, MD", "mentor_006"],
+  ["Sarah Mourra, MD", "mentor_007"],
+  ["Camilla Lyons, MD", "mentor_008"],
+  ["Marcos Moreno, MD, MPH", "mentor_009"],
+  ["Anna Yusim, MD", "mentor_010"],
+  ["Kaosoluchi Enendu, MD, MBA", "mentor_011"],
+  ["Ahmed Tahseen, MD", "mentor_012"],
+  ["Noah Capurso, MD", "mentor_013"],
+  ["Myra Mathis, MD", "mentor_014"],
+  ["Robin Bonomi, MD, PhD", "mentor_015"],
+  ["David Ross, MD, PhD", "mentor_016"],
+  ["Brady Heward, MD", "mentor_017"],
+  ["Taiwo Alonge, MD", "mentor_018"],
+  ["Andi Diaz Stransky, MD", "mentor_019"],
+  ["Kia Sayers, MD", "mentor_020"],
+  ["Ish Bhalla, MD", "mentor_021"]
+]);
+
+function mentorAnalyticsId(m) {
+  return m && MENTOR_ANALYTICS_IDS.get(m.name) || "";
+}
+
+function tmacsAnalytics() {
+  return window.TMACSAnalytics || null;
+}
+
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/mapbox/light-v10",
@@ -391,10 +425,11 @@ function buildMentorEmailLink(m) {
 }
 
 function bookingMarkup(m) {
+  const analyticsId = mentorAnalyticsId(m);
   if (m.bookingType === "email" && m.email) {
     return `
-      <p class="booking-note">This mentor prefers direct scheduling by email.</p>
-      <a class="booking-button" href="${buildMentorEmailLink(m)}" aria-label="Email ${m.name} to request a mentorship meeting">
+      <p class="booking-note" data-profile-section="scheduling">This mentor prefers direct scheduling by email.</p>
+      <a class="booking-button" data-mentor-analytics-id="${analyticsId}" data-scheduling-method="email" href="${buildMentorEmailLink(m)}" aria-label="Email ${m.name} to request a mentorship meeting">
         ✉️ Email This Mentor →
       </a>
     `;
@@ -402,18 +437,18 @@ function bookingMarkup(m) {
 
   if (m.bookingType === "external" && m.bookingLink) {
     return `
-      <p class="booking-note">This mentor prefers direct scheduling using the contact instructions above.</p>
-      <a class="booking-button" href="${m.bookingLink}" target="_blank" rel="noopener noreferrer" aria-label="Open external scheduling or contact link for ${m.name}">
+      <p class="booking-note" data-profile-section="scheduling">This mentor prefers direct scheduling using the contact instructions above.</p>
+      <a class="booking-button" data-mentor-analytics-id="${analyticsId}" data-scheduling-method="external" href="${m.bookingLink}" target="_blank" rel="noopener noreferrer" aria-label="Open external scheduling or contact link for ${m.name}">
         ${m.bookingLabel || "Contact Mentor →"}
       </a>
     `;
   }
 
   return `
-    <p class="booking-note">
+    <p class="booking-note" data-profile-section="scheduling">
       After reviewing mentor profiles, use the T-MACS scheduling portal to request a mentorship meeting.
     </p>
-    <a class="booking-button" href="${TMACS_BOOKING_LINK}" target="_blank" rel="noopener noreferrer" aria-label="Schedule a mentorship meeting through T-MACS">
+    <a class="booking-button" data-mentor-analytics-id="${analyticsId}" data-scheduling-method="bookings" href="${TMACS_BOOKING_LINK}" target="_blank" rel="noopener noreferrer" aria-label="Schedule a mentorship meeting through T-MACS">
       📅 Schedule Through T-MACS →
     </a>
   `;
@@ -421,6 +456,10 @@ function bookingMarkup(m) {
 
 
 function renderWelcomePanel() {
+  const analytics = tmacsAnalytics();
+  if (analytics && typeof analytics.trackMentorProfileClosed === "function") {
+    analytics.trackMentorProfileClosed();
+  }
   document.getElementById("detailContent").innerHTML = `
     <div class="welcome-card">
       <h2>👋 Welcome to T-MACS</h2>
@@ -621,6 +660,11 @@ function updateStats(list, mode = "browse") {
 
 function showMentor(m) {
   clearWelcomeTourClasses();
+  const analyticsId = mentorAnalyticsId(m);
+  const analytics = tmacsAnalytics();
+  if (analytics && typeof analytics.trackMentorProfileOpened === "function") {
+    analytics.trackMentorProfileOpened(analyticsId);
+  }
   selectedMentorName = m.name;
 
   document.getElementById("detailContent").innerHTML = `
@@ -644,21 +688,21 @@ function showMentor(m) {
       ` : ""}
     ` : ""}
 
-    <div class="detail-heading">Specialty / Pathway Topics</div>
+    <div class="detail-heading" data-profile-section="specialties">Specialty / Pathway Topics</div>
     <div class="tag-row">
       ${m.specialties.map(s => `<span class="tag">${s}</span>`).join("")}
     </div>
 
-    <div class="detail-heading">Mentor Focus Areas</div>
+    <div class="detail-heading" data-profile-section="focus_areas">Mentor Focus Areas</div>
     <div class="tag-row">
       ${m.focusAreas.map(f => `<span class="tag">${f}</span>`).join("")}
     </div>
 
 
-    <div class="detail-heading">Profile</div>
+    <div class="detail-heading" data-profile-section="overview">Profile</div>
     <p>${m.fullBio}</p>
 
-    <div class="detail-heading">Availability</div>
+    <div class="detail-heading" data-profile-section="availability">Availability</div>
     <p>${m.availability || "Availability pending."}</p>
 
     ${bookingMarkup(m)}
@@ -667,6 +711,9 @@ function showMentor(m) {
   `;
 
   const detailContent = document.getElementById("detailContent");
+  if (analytics && typeof analytics.observeMentorProfileSections === "function") {
+    analytics.observeMentorProfileSections(detailContent, analyticsId);
+  }
   detailContent.focus({ preventScroll: true });
 
   flyToMentor(m);
@@ -741,6 +788,7 @@ function render(list, mode = "browse") {
     card.type = "button";
     card.className = "mentor-card";
     card.dataset.name = m.name;
+    card.dataset.mentorAnalyticsId = mentorAnalyticsId(m);
     card.setAttribute("aria-label", `View profile for ${m.name}, ${m.city}`);
 
     if (selectedMentorName === m.name) {

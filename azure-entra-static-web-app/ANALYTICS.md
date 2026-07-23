@@ -10,7 +10,7 @@ Analytics is deliberately isolated from application behavior:
 - Only allowlisted event names, tag names, and tag values are accepted.
 - Names, email addresses, URLs, search text, profile text, authentication identifiers, and other free text are not accepted.
 - Clarity unavailability does not block page loading, redirects, navigation, matching, Mapbox, profiles, scheduling, or the tour.
-- One delegated click listener covers current and dynamically inserted navigation controls.
+- One delegated click listener covers current and dynamically inserted navigation, mentor-card, Mobile Back, and scheduling controls.
 
 The public landing page loads the module before its desktop redirect so the landing event can be queued without changing redirect behavior. The authenticated app loads it in the document head. The previous inline Clarity loader was moved into the centralized module; the project ID remains `x2jiagxeku`.
 
@@ -28,9 +28,26 @@ The public landing page loads the module before its desktop redirect so the land
 | `map_view_opened` | The authenticated app opens or is initially requested in Map view. |
 | `tour_view_opened` | The authenticated app opens or is initially requested in Tour/Guide view. |
 
-Feature events for matching, filters, map markers, mentor profiles, scheduling, and tour steps are intentionally deferred to Phase 3.
+Feature events for matching, filters, map regions, and tour steps remain deferred. Phase 3A adds only mentor engagement and scheduling events.
 
-## Phase 2 custom tags
+## Phase 3A mentor engagement and scheduling registry
+
+| Event | Trigger | Safe dimensions | Deduplication rule | Files involved |
+| --- | --- | --- | --- | --- |
+| `mentor_card_clicked` | A generated mentor card is activated. Map markers do not count as card clicks. | `mentor_id` | Once per actual card activation; the single capture-phase delegated listener prevents overlapping mobile handlers from duplicating it. | `src/analytics.js`, `src/app/app.js` |
+| `mentor_profile_opened` | `showMentor` begins a profile visit. | `mentor_id` | Once per profile visit. Re-entrant calls for the already-active opaque ID are ignored. | `src/analytics.js`, `src/app/app.js` |
+| `mentor_profile_replaced` | A different mentor replaces the currently active profile. | `previous_mentor_id`, `mentor_id` | Once per actual transition; selecting the same mentor again is ignored. | `src/analytics.js`, `src/app/app.js` |
+| `mentor_profile_section_viewed` | At least 50% of an approved profile-section marker intersects the viewport. | `mentor_id`, `profile_section` | Once per section per profile visit. The observer disconnects when the visit closes or is replaced. | `src/analytics.js`, `src/app/app.js` |
+| `mentor_profile_closed` | Existing Mobile Back, Tour/Guide restore, filter reset, match reset/start, or another existing welcome-panel restore closes the active analytics profile visit. | `mentor_id` | Once per active visit; repeated restore/back handlers are ignored after state is cleared. | `src/analytics.js`, `src/app/app.js` |
+| `scheduling_option_clicked` | Any generated mentor scheduling button is activated. | `mentor_id`, `scheduling_method` | Once per actual activation through the single delegated listener. | `src/analytics.js`, `src/app/app.js` |
+| `email_mentor_clicked` | The scheduling button uses the existing `mailto:` pathway. | `mentor_id`, `scheduling_method=email` | Once per actual activation. | `src/analytics.js`, `src/app/app.js` |
+| `bookings_link_clicked` | The scheduling button uses the shared Microsoft Bookings pathway. | `mentor_id`, `scheduling_method=bookings` | Once per actual activation. | `src/analytics.js`, `src/app/app.js` |
+| `external_scheduling_link_clicked` | The scheduling button uses a mentor-specific external scheduling pathway. | `mentor_id`, `scheduling_method=external` | Once per actual activation. The branch is supported even though no current record uses it. | `src/analytics.js`, `src/app/app.js` |
+| `scheduling_intent_reached` | The first valid scheduling activation in the browser session. | `mentor_id`, `scheduling_method` | Once per session using `sessionStorage`, with an in-memory fallback. | `src/analytics.js`, `src/app/app.js` |
+
+Mentor website links (`.profile-link`) are not scheduling controls and do not fire scheduling events.
+
+## Custom tags
 
 | Tag | Allowed values |
 | --- | --- |
@@ -39,6 +56,10 @@ Feature events for matching, filters, map markers, mentor profiles, scheduling, 
 | `selected_navigation_mode` | `match`, `browse`, `map`, `tour` |
 | `visit_type` | `first_time`, `returning` |
 | `application_area` | `public`, `authenticated` |
+| `mentor_id` | Opaque values matching `mentor_001` through `mentor_999` |
+| `previous_mentor_id` | Opaque values matching `mentor_001` through `mentor_999` |
+| `profile_section` | `specialties`, `focus_areas`, `overview`, `availability`, `scheduling` |
+| `scheduling_method` | `email`, `bookings`, `external` |
 
 First-time/returning status uses only a local `localStorage` flag. It does not identify a person and is not tied to Yale authentication.
 
@@ -49,11 +70,12 @@ Phase 2 establishes these funnel foundations:
 1. `landing_page_viewed` → `yale_sign_in_clicked` → `app_loaded`
 2. `app_loaded` → Match/Browse/Map/Tour navigation → corresponding `*_view_opened` event
 
-The discovery, mentor-profile, scheduling, and full tour funnels will become available after Phase 3 instrumentation.
+Phase 3A additionally supports `mentor_card_clicked` to `mentor_profile_opened` to `scheduling_option_clicked`, and `mentor_profile_opened` to `scheduling_intent_reached`. Matching, filtering, and full tour funnels remain deferred.
 
 ## Privacy protections
 
 - No Yale NetID, identity claim, name, email address, mentor biography, scheduling URL, or search value is sent.
+- Mentor records are not altered with analytics fields. A separate local lookup maps existing names to stable opaque IDs; only the opaque ID passes the analytics allowlist.
 - Event and tag inputs are normalized to short lowercase tokens.
 - Unknown event names, tag names, and tag values are rejected.
 - The module does not call Clarity's identity API.
@@ -63,7 +85,7 @@ The discovery, mentor-profile, scheduling, and full tour funnels will become ava
 ## Browser testing
 
 1. Open browser developer tools and select the Console.
-2. Confirm `window.TMACSAnalytics` exposes `initializeAnalytics`, `trackEvent`, and `setAnalyticsTag`.
+2. Confirm `window.TMACSAnalytics` exposes the documented base helpers plus the Phase 3A profile-state helpers.
 3. Confirm `typeof window.clarity === "function"` after `analytics.js` loads.
 4. Temporarily block `clarity.ms` in developer tools and reload. The page and all navigation must continue to work without console errors from T-MACS analytics.
 5. Select each landing/mobile navigation option once and inspect Clarity's queued calls with `window.clarity.q` before the remote Clarity script replaces the queue.

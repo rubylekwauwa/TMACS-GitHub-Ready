@@ -8,6 +8,9 @@
   var VISIT_STORAGE_KEY = "tmacs_analytics_has_visited";
   var memoryOnce = Object.create(null);
   var initialized = false;
+  var activeMentorProfileId = "";
+  var viewedProfileSections = Object.create(null);
+  var profileSectionObserver = null;
 
   var allowedEvents = new Set([
     "landing_page_viewed",
@@ -18,7 +21,17 @@
     "match_view_opened",
     "browse_view_opened",
     "map_view_opened",
-    "tour_view_opened"
+    "tour_view_opened",
+    "mentor_card_clicked",
+    "mentor_profile_opened",
+    "mentor_profile_replaced",
+    "mentor_profile_section_viewed",
+    "mentor_profile_closed",
+    "scheduling_option_clicked",
+    "email_mentor_clicked",
+    "bookings_link_clicked",
+    "external_scheduling_link_clicked",
+    "scheduling_intent_reached"
   ]);
 
   var allowedTagValues = {
@@ -26,7 +39,9 @@
     entry_route: new Set(["public_landing", "authenticated_app"]),
     selected_navigation_mode: new Set(["match", "browse", "map", "tour"]),
     visit_type: new Set(["first_time", "returning"]),
-    application_area: new Set(["public", "authenticated"])
+    application_area: new Set(["public", "authenticated"]),
+    scheduling_method: new Set(["email", "bookings", "external"]),
+    profile_section: new Set(["specialties", "focus_areas", "overview", "availability", "scheduling"])
   };
 
   function normalizeToken(value) {
@@ -76,7 +91,9 @@
     var safeName = normalizeToken(tagName);
     var safeValue = normalizeToken(value);
     var valueAllowlist = allowedTagValues[safeName];
-    if (!valueAllowlist || !valueAllowlist.has(safeValue)) return false;
+    var isMentorIdTag = safeName === "mentor_id" || safeName === "previous_mentor_id";
+    if (isMentorIdTag && !/^mentor_[0-9]{3}$/.test(safeValue)) return false;
+    if (!isMentorIdTag && (!valueAllowlist || !valueAllowlist.has(safeValue))) return false;
     return safeClarityCall("set", safeName, safeValue);
   }
 
@@ -100,6 +117,101 @@
     if (!safeKey || memoryOnce[safeKey]) return;
     memoryOnce[safeKey] = true;
     callback();
+  }
+
+  function oncePerSession(key, callback) {
+    var safeKey = normalizeToken(key);
+    if (!safeKey) return;
+    try {
+      var storageKey = "tmacs_analytics_once_" + safeKey;
+      if (window.sessionStorage.getItem(storageKey) === "yes") return;
+      window.sessionStorage.setItem(storageKey, "yes");
+    } catch (error) {
+      if (memoryOnce["session_" + safeKey]) return;
+      memoryOnce["session_" + safeKey] = true;
+    }
+    callback();
+  }
+
+  function isOpaqueMentorId(value) {
+    return /^mentor_[0-9]{3}$/.test(normalizeToken(value));
+  }
+
+  function disconnectProfileSectionObserver() {
+    try {
+      if (profileSectionObserver) profileSectionObserver.disconnect();
+    } catch (error) {}
+    profileSectionObserver = null;
+  }
+
+  function trackMentorProfileOpened(mentorId) {
+    var safeMentorId = normalizeToken(mentorId);
+    if (!isOpaqueMentorId(safeMentorId) || activeMentorProfileId === safeMentorId) return false;
+
+    if (activeMentorProfileId) {
+      trackEvent("mentor_profile_replaced", {
+        previous_mentor_id: activeMentorProfileId,
+        mentor_id: safeMentorId
+      });
+    }
+
+    disconnectProfileSectionObserver();
+    activeMentorProfileId = safeMentorId;
+    viewedProfileSections = Object.create(null);
+    trackEvent("mentor_profile_opened", { mentor_id: safeMentorId });
+    return true;
+  }
+
+  function trackMentorProfileClosed(mentorId) {
+    var safeMentorId = normalizeToken(mentorId || activeMentorProfileId);
+    if (!activeMentorProfileId || safeMentorId !== activeMentorProfileId) return false;
+    trackEvent("mentor_profile_closed", { mentor_id: activeMentorProfileId });
+    activeMentorProfileId = "";
+    viewedProfileSections = Object.create(null);
+    disconnectProfileSectionObserver();
+    return true;
+  }
+
+  function trackMentorProfileSection(mentorId, section) {
+    var safeMentorId = normalizeToken(mentorId);
+    var safeSection = normalizeToken(section);
+    if (safeMentorId !== activeMentorProfileId ||
+        !isOpaqueMentorId(safeMentorId) ||
+        !allowedTagValues.profile_section.has(safeSection) ||
+        viewedProfileSections[safeSection]) return false;
+    viewedProfileSections[safeSection] = true;
+    trackEvent("mentor_profile_section_viewed", {
+      mentor_id: safeMentorId,
+      profile_section: safeSection
+    });
+    return true;
+  }
+
+  function observeMentorProfileSections(root, mentorId) {
+    var safeMentorId = normalizeToken(mentorId);
+    if (!root || safeMentorId !== activeMentorProfileId || !isOpaqueMentorId(safeMentorId)) return false;
+    disconnectProfileSectionObserver();
+    if (typeof window.IntersectionObserver !== "function") return false;
+
+    try {
+      profileSectionObserver = new window.IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting || entry.intersectionRatio < 0.5) return;
+          var section = entry.target.getAttribute("data-profile-section");
+          if (trackMentorProfileSection(safeMentorId, section) && profileSectionObserver) {
+            profileSectionObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: [0.5] });
+
+      root.querySelectorAll("[data-profile-section]").forEach(function (element) {
+        profileSectionObserver.observe(element);
+      });
+      return true;
+    } catch (error) {
+      disconnectProfileSectionObserver();
+      return false;
+    }
   }
 
   function getVisitType() {
@@ -178,6 +290,34 @@
           : null;
         if (!target) return;
 
+        var mentorCard = target.closest(".mentor-card[data-mentor-analytics-id]");
+        if (mentorCard) {
+          trackEvent("mentor_card_clicked", {
+            mentor_id: mentorCard.getAttribute("data-mentor-analytics-id")
+          });
+        }
+
+        if (target.matches(".mobile-back-to-results")) trackMentorProfileClosed();
+
+        if (target.matches("a.booking-button[data-mentor-analytics-id][data-scheduling-method]")) {
+          var schedulingMentorId = target.getAttribute("data-mentor-analytics-id");
+          var schedulingMethod = target.getAttribute("data-scheduling-method");
+          var schedulingProperties = {
+            mentor_id: schedulingMentorId,
+            scheduling_method: schedulingMethod
+          };
+          if (isOpaqueMentorId(schedulingMentorId) &&
+              allowedTagValues.scheduling_method.has(normalizeToken(schedulingMethod))) {
+            trackEvent("scheduling_option_clicked", schedulingProperties);
+            if (schedulingMethod === "email") trackEvent("email_mentor_clicked", schedulingProperties);
+            if (schedulingMethod === "bookings") trackEvent("bookings_link_clicked", schedulingProperties);
+            if (schedulingMethod === "external") trackEvent("external_scheduling_link_clicked", schedulingProperties);
+            oncePerSession("scheduling_intent_reached", function () {
+              trackEvent("scheduling_intent_reached", schedulingProperties);
+            });
+          }
+        }
+
         var href = target.getAttribute("href") || "";
         if (href.indexOf("/.auth/login/aad") !== -1) trackEvent("yale_sign_in_clicked");
 
@@ -187,17 +327,23 @@
           ? "mobile_navigation_selected"
           : "desktop_navigation_selected";
         trackEvent(navigationEvent, { selected_navigation_mode: mode });
-        if (isApp) trackViewOpened(mode);
+        if (isApp) {
+          if (mode === "tour") trackMentorProfileClosed();
+          trackViewOpened(mode);
+        }
       } catch (error) {
         // Delegated analytics must never interfere with the original click.
       }
-    }, false);
+    }, true);
   }
 
   window.TMACSAnalytics = Object.freeze({
     initializeAnalytics: initializeAnalytics,
     trackEvent: trackEvent,
-    setAnalyticsTag: setAnalyticsTag
+    setAnalyticsTag: setAnalyticsTag,
+    trackMentorProfileOpened: trackMentorProfileOpened,
+    trackMentorProfileClosed: trackMentorProfileClosed,
+    observeMentorProfileSections: observeMentorProfileSections
   });
 
   initializeAnalytics();
