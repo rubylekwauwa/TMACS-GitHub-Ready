@@ -6,11 +6,17 @@
   var CLARITY_PROJECT_ID = "x2jiagxeku";
   var CLARITY_SCRIPT_ID = "tmacs-clarity-loader";
   var VISIT_STORAGE_KEY = "tmacs_analytics_has_visited";
+  var TOUR_COMPLETION_STORAGE_KEY = "tmacs_analytics_tour_completed";
   var memoryOnce = Object.create(null);
   var initialized = false;
   var activeMentorProfileId = "";
   var viewedProfileSections = Object.create(null);
   var profileSectionObserver = null;
+  var tourRunActive = false;
+  var tourRunCompleted = false;
+  var tourCompletedInSession = false;
+  var viewedTourSteps = Object.create(null);
+  var tourStateObserver = null;
 
   var allowedEvents = new Set([
     "landing_page_viewed",
@@ -46,7 +52,13 @@
     "browse_search_used",
     "browse_results_displayed",
     "browse_reset",
-    "empty_results_seen"
+    "empty_results_seen",
+    "tour_started",
+    "tour_step_viewed",
+    "tour_completed",
+    "tour_skipped",
+    "tour_replayed",
+    "tutorial_help_opened"
   ]);
 
   var allowedTagValues = {
@@ -64,7 +76,9 @@
     keyword_used: new Set(["yes", "no"]),
     keyword_length_band: new Set(["none", "under_10", "10_to_24", "25_plus"]),
     search_used: new Set(["yes", "no"]),
-    search_length_band: new Set(["none", "under_10", "10_to_24", "25_plus"])
+    search_length_band: new Set(["none", "under_10", "10_to_24", "25_plus"]),
+    tour_step: new Set(["1", "2", "3"]),
+    tour_completion_status: new Set(["not_completed", "completed"])
   };
 
   function normalizeToken(value) {
@@ -285,6 +299,7 @@
     };
     if (mode === "match") once("match_view_opened", emitViewEvent);
     else if (mode === "browse") once("browse_view_opened", emitViewEvent);
+    else if (mode === "tour") trackTourViewOpened();
     else emitViewEvent();
   }
 
@@ -294,6 +309,91 @@
 
   function trackBrowseViewOpened() {
     trackViewOpened("browse");
+  }
+
+  function trackTourViewOpened() {
+    once("tour_view_opened", function () {
+      setAnalyticsTag("selected_navigation_mode", "tour");
+      trackEvent("tour_view_opened");
+    });
+  }
+
+  function trackTourStepViewed(step) {
+    var safeStep = normalizeToken(step);
+    if (!tourRunActive || !allowedTagValues.tour_step.has(safeStep) || viewedTourSteps[safeStep]) return false;
+    viewedTourSteps[safeStep] = true;
+    trackEvent("tour_step_viewed", { tour_step: safeStep });
+    return true;
+  }
+
+  function trackTourSkipped() {
+    if (!tourRunActive || tourRunCompleted) return false;
+    trackEvent("tour_skipped");
+    setAnalyticsTag("tour_completion_status", tourCompletedInSession ? "completed" : "not_completed");
+    tourRunActive = false;
+    return true;
+  }
+
+  function trackTourRunStarted(runType) {
+    var safeRunType = normalizeToken(runType);
+    if (safeRunType !== "start" && safeRunType !== "replay") return false;
+    if (tourRunActive) trackTourSkipped();
+    tourRunActive = true;
+    tourRunCompleted = false;
+    viewedTourSteps = Object.create(null);
+    trackTourViewOpened();
+    setAnalyticsTag("tour_completion_status", tourCompletedInSession ? "completed" : "not_completed");
+    trackEvent("tour_started");
+    if (safeRunType === "replay") trackEvent("tour_replayed");
+    return true;
+  }
+
+  function trackTourCompleted() {
+    if (!tourRunActive || tourRunCompleted) return false;
+    tourRunCompleted = true;
+    tourRunActive = false;
+    tourCompletedInSession = true;
+    try { window.sessionStorage.setItem(TOUR_COMPLETION_STORAGE_KEY, "yes"); } catch (error) {}
+    trackEvent("tour_completed");
+    setAnalyticsTag("tour_completion_status", "completed");
+    return true;
+  }
+
+  function inspectTourState() {
+    if (!tourRunActive) return;
+    var steps = [1, 2, 3].map(function (step) {
+      return document.getElementById("welcomeStep" + step);
+    });
+    if (steps.every(function (step) { return !step; })) {
+      trackTourSkipped();
+      return;
+    }
+    steps.forEach(function (element, index) {
+      if (element && (element.classList.contains("tour-step-active") ||
+          element.classList.contains("tour-step-complete"))) {
+        trackTourStepViewed(index + 1);
+      }
+    });
+    if (steps.every(function (step) {
+      return step && step.classList.contains("tour-step-complete");
+    })) trackTourCompleted();
+  }
+
+  function initializeTourStateObserver() {
+    if (tourStateObserver || typeof window.MutationObserver !== "function") return;
+    var root = document.getElementById("detailContent");
+    if (!root) return;
+    try {
+      tourStateObserver = new window.MutationObserver(inspectTourState);
+      tourStateObserver.observe(root, {
+        attributes: true,
+        attributeFilter: ["class"],
+        childList: true,
+        subtree: true
+      });
+    } catch (error) {
+      tourStateObserver = null;
+    }
   }
 
   function initializeAnalytics() {
@@ -309,12 +409,23 @@
     setAnalyticsTag("application_area", isApp ? "authenticated" : "public");
 
     if (isApp) {
+      try {
+        tourCompletedInSession = window.sessionStorage.getItem(TOUR_COMPLETION_STORAGE_KEY) === "yes";
+      } catch (error) {
+        tourCompletedInSession = false;
+      }
+      setAnalyticsTag("tour_completion_status", tourCompletedInSession ? "completed" : "not_completed");
       once("app_loaded", function () { trackEvent("app_loaded"); });
       try {
         var requestedView = new URLSearchParams(window.location.search).get("view") || "";
         if (requestedView === "guide") requestedView = "tour";
         if (requestedView) trackViewOpened(requestedView);
       } catch (error) {}
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initializeTourStateObserver, { once: true });
+      } else {
+        initializeTourStateObserver();
+      }
     } else if (window.location.pathname === "/" || /\/index\.html$/i.test(window.location.pathname)) {
       once("landing_page_viewed", function () { trackEvent("landing_page_viewed"); });
     }
@@ -325,6 +436,10 @@
           ? event.target.closest("a, button")
           : null;
         if (!target) return;
+
+        if (isApp && target.matches(".voice-tour-button") && getDeviceExperience() === "mobile") {
+          trackTourRunStarted("start");
+        }
 
         var mentorCard = target.closest(".mentor-card[data-mentor-analytics-id]");
         if (mentorCard) {
@@ -365,6 +480,7 @@
         trackEvent(navigationEvent, { selected_navigation_mode: mode });
         if (isApp) {
           if (mode === "tour") trackMentorProfileClosed();
+          if (mode === "tour") trackEvent("tutorial_help_opened");
           trackViewOpened(mode);
         }
       } catch (error) {
@@ -379,6 +495,9 @@
     setAnalyticsTag: setAnalyticsTag,
     trackMatchViewOpened: trackMatchViewOpened,
     trackBrowseViewOpened: trackBrowseViewOpened,
+    trackTourViewOpened: trackTourViewOpened,
+    trackTourRunStarted: trackTourRunStarted,
+    trackTourSkipped: trackTourSkipped,
     trackMentorProfileOpened: trackMentorProfileOpened,
     trackMentorProfileClosed: trackMentorProfileClosed,
     observeMentorProfileSections: observeMentorProfileSections

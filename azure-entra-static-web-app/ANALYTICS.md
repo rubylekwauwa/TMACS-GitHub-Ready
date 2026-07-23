@@ -28,7 +28,7 @@ The public landing page loads the module before its desktop redirect so the land
 | `map_view_opened` | The authenticated app opens or is initially requested in Map view. |
 | `tour_view_opened` | The authenticated app opens or is initially requested in Tour/Guide view. |
 
-Map-region and tour-step events remain deferred. Phase 3A covers mentor engagement and scheduling, Phase 3B covers matching, and Phase 3C covers Browse search and filtering.
+Map-region events remain deferred. Phase 3A covers mentor engagement and scheduling, Phase 3B covers matching, Phase 3C covers Browse search and filtering, and Phase 3D covers the guided tour.
 
 ## Phase 3A mentor engagement and scheduling registry
 
@@ -86,6 +86,27 @@ Browse analytics are emitted from the existing `refresh()` pipeline after `apply
 
 For Phase 3C, **reset** means all Browse fields transitioned from at least one active criterion to clear. There is no dedicated desktop Browse reset control. This definition covers manually clearing the final field and existing navigation-driven mobile resets; initial page load with already-empty fields is not a reset.
 
+## Phase 3D guided-tour registry
+
+Tour analytics use the central `runWelcomeTourPreview()` start/stop state and a single observer on the shared numbered-step classes. No mobile wrapper, cue table, timing value, highlight, audio handler, scroll behavior, or instructional text is modified.
+
+| Event | Trigger | Safe dimensions | Deduplication rule | Files involved |
+| --- | --- | --- | --- | --- |
+| `tour_view_opened` | Tour/Guide is requested, tutorial help is selected, or a tour run begins. | `selected_navigation_mode=tour` | Once per document across query, navigation, desktop, and mobile paths. | `src/analytics.js`, `src/app/app.js` |
+| `tutorial_help_opened` | An authenticated user selects an existing Tour/Guide navigation or mobile-home control. | None | Once per actual help-navigation activation through the existing centralized click delegation. | `src/analytics.js` |
+| `tour_started` | A valid visual or voice tour run begins after existing reduced-motion, profile-selection, and required-element guards pass. | None | Once per run. Replay runs also begin a run and therefore fire `tour_started`. | `src/analytics.js`, `src/app/app.js` |
+| `tour_replayed` | A run begins from the existing Replay Tour control. | None | Once for that replay run, alongside `tour_started`. Voice Start controls do not fire it. | `src/analytics.js`, `src/app/app.js` |
+| `tour_step_viewed` | A shared numbered step first becomes active or complete during the current run. | `tour_step` | Once for each of steps `1`, `2`, and `3` per run, regardless of how many wrappers repeat a cue. | `src/analytics.js` |
+| `tour_completed` | All three shared numbered steps reach their existing completed state. | None | Once per run. Later settle/ended cues are ignored. | `src/analytics.js` |
+| `tour_skipped` | An active, incomplete app-controlled run is cancelled through the existing central `stopWelcomeTour()` path, or its welcome panel is replaced before completion. | None | Once per incomplete run. Starting another run first closes the prior active run as skipped. | `src/analytics.js`, `src/app/app.js` |
+
+Definitions:
+
+- **Started:** a valid run begins; this includes both first runs and replay runs.
+- **Replayed:** the existing Replay Tour action began that run; it is an additional classification of `tour_started`.
+- **Skipped:** an active run ended through an existing cancellation/replace path before all three steps completed.
+- **Completed:** all three numbered steps reached the existing completed state; later duplicate cues do not repeat it.
+
 ## Custom tags
 
 | Tag | Allowed values |
@@ -107,6 +128,8 @@ For Phase 3C, **reset** means all Browse fields transitioned from at least one a
 | `keyword_length_band` | `none`, `under_10`, `10_to_24`, `25_plus` |
 | `search_used` | `yes`, `no` |
 | `search_length_band` | `none`, `under_10`, `10_to_24`, `25_plus` |
+| `tour_step` | `1`, `2`, `3` |
+| `tour_completion_status` | `not_completed`, `completed` |
 
 First-time/returning status uses only a local `localStorage` flag. It does not identify a person and is not tied to Yale authentication.
 
@@ -117,7 +140,7 @@ Phase 2 establishes these funnel foundations:
 1. `landing_page_viewed` → `yale_sign_in_clicked` → `app_loaded`
 2. `app_loaded` → Match/Browse/Map/Tour navigation → corresponding `*_view_opened` event
 
-Phase 3A supports `mentor_card_clicked` to `mentor_profile_opened` to `scheduling_option_clicked`, and `mentor_profile_opened` to `scheduling_intent_reached`. Phase 3B adds `match_view_opened` to `match_started` to `match_completed` to `match_results_displayed` to `match_result_opened`. Phase 3C adds `browse_view_opened` to `browse_started` or `browse_search_used` to `browse_results_displayed` to `mentor_profile_opened`. Full tour funnels remain deferred.
+Phase 3A supports `mentor_card_clicked` to `mentor_profile_opened` to `scheduling_option_clicked`, and `mentor_profile_opened` to `scheduling_intent_reached`. Phase 3B adds `match_view_opened` to `match_started` to `match_completed` to `match_results_displayed` to `match_result_opened`. Phase 3C adds `browse_view_opened` to `browse_started` or `browse_search_used` to `browse_results_displayed` to `mentor_profile_opened`. Phase 3D adds `tour_view_opened` to `tour_started` to numbered `tour_step_viewed` events to `tour_completed`.
 
 ## Privacy protections
 
@@ -125,6 +148,8 @@ Phase 3A supports `mentor_card_clicked` to `mentor_profile_opened` to `schedulin
 - Matching keywords are reduced to `keyword_used` and a broad character-length band. Keyword content is never passed to the analytics module or used in the local result-set signature.
 - Browse searches are reduced to `search_used` and a broad character-length band. Search content, names, cities, and locations are never passed to analytics or stored in the result-state signature.
 - Specialty and Focus values remain local comparison state. Only the nonsensitive filter type is transmitted, including for identity or lived-experience selections.
+- Tour analytics transmit only step numbers. Narration, instructional text, cue timing, and audio state are not transmitted.
+- Tour completion status is stored only as a yes/no session flag and reflected in the allowlisted Clarity session tag.
 - Mentor records are not altered with analytics fields. A separate local lookup maps existing names to stable opaque IDs; only the opaque ID passes the analytics allowlist.
 - Event and tag inputs are normalized to short lowercase tokens.
 - Unknown event names, tag names, and tag values are rejected.

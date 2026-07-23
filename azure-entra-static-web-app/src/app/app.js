@@ -1778,7 +1778,7 @@ let welcomeTourCancelHandlers = [];
 let welcomeTourAudioHandlers = [];
 let activeVoiceCueIndex = -1;
 
-function stopWelcomeTour(clearCompleted = true) {
+function stopWelcomeTour(clearCompleted = true, trackSkipped = true) {
   welcomeTourTimeouts.forEach(timeout => window.clearTimeout(timeout));
   welcomeTourTimeouts = [];
 
@@ -1805,6 +1805,12 @@ function stopWelcomeTour(clearCompleted = true) {
   }
 
   clearWelcomeTourClasses(clearCompleted);
+  if (trackSkipped) {
+    const analytics = tmacsAnalytics();
+    if (analytics && typeof analytics.trackTourSkipped === "function") {
+      analytics.trackTourSkipped();
+    }
+  }
 }
 
 function applyVoiceTourCue(cueName) {
@@ -2048,7 +2054,11 @@ function runWelcomeTourPreview(forceReplay = false, withVoice = false) {
   if (!detailContent || !step1 || !step2 || !step3) return;
 
   // Fully reset any previous tour before starting again.
-  stopWelcomeTour(true);
+  stopWelcomeTour(true, false);
+  const analytics = tmacsAnalytics();
+  if (analytics && typeof analytics.trackTourRunStarted === "function") {
+    analytics.trackTourRunStarted(withVoice ? "start" : "replay");
+  }
 
   if (withVoice && audio) {
     audio.currentTime = 0;
