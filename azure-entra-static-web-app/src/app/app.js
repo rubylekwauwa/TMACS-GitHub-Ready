@@ -382,6 +382,13 @@ let markerElements = {};
 let selectedMentorName = null;
 let currentMarkerDisplayCoords = {};
 let currentRenderedList = [];
+let browseResultsAreVisible = false;
+let previousBrowseCriteria = {
+  searchUsed: false,
+  specialty: "",
+  focus: ""
+};
+let lastDisplayedBrowseResultSignature = null;
 
 function listToText(items) {
   return items ? items.join(", ") : "";
@@ -778,6 +785,7 @@ function markerDisplayCoordsForList(list) {
 }
 
 function render(list, mode = "browse") {
+  if (mode !== "browse") browseResultsAreVisible = false;
   const container = document.getElementById("mentorList");
   container.innerHTML = "";
 
@@ -1032,13 +1040,95 @@ function applyFilters() {
   return sortMentorsByNameRelevance(filteredMentors, search);
 }
 
+function browseSearchLengthBand(search) {
+  const length = search.length;
+  if (length === 0) return "none";
+  if (length < 10) return "under_10";
+  if (length < 25) return "10_to_24";
+  return "25_plus";
+}
+
+function activeBrowseFilterCountBand(criteria) {
+  const count = [criteria.searchUsed, criteria.specialty, criteria.focus].filter(Boolean).length;
+  return ["zero", "one", "two", "three"][count];
+}
+
+function currentBrowseAnalyticsProperties(criteria, search, results) {
+  return {
+    active_filter_count_band: activeBrowseFilterCountBand(criteria),
+    result_count_band: matchResultCountBand(results.length),
+    search_used: criteria.searchUsed ? "yes" : "no",
+    search_length_band: browseSearchLengthBand(search)
+  };
+}
+
+function browseResultStateSignature(criteria, search, results) {
+  const activeTypes = [
+    criteria.searchUsed ? "search" : "",
+    criteria.specialty ? "specialty" : "",
+    criteria.focus ? "focus" : ""
+  ].filter(Boolean).join(",");
+  const resultIds = results.map(mentorAnalyticsId).join("|");
+  return `${activeTypes}:${browseSearchLengthBand(search)}:${resultIds}`;
+}
+
+function trackBrowseCriteriaChanges(criteria, properties) {
+  const previousWasActive = Boolean(
+    previousBrowseCriteria.searchUsed || previousBrowseCriteria.specialty || previousBrowseCriteria.focus
+  );
+  const currentIsActive = Boolean(criteria.searchUsed || criteria.specialty || criteria.focus);
+
+  if (!previousWasActive && currentIsActive) trackTmacsEvent("browse_started", properties);
+  if (!previousBrowseCriteria.searchUsed && criteria.searchUsed) {
+    trackTmacsEvent("browse_search_used", properties);
+  }
+
+  [
+    { type: "specialty", previous: previousBrowseCriteria.specialty, current: criteria.specialty },
+    { type: "focus", previous: previousBrowseCriteria.focus, current: criteria.focus }
+  ].forEach(change => {
+    if (change.previous === change.current) return;
+    if (change.previous) {
+      trackTmacsEvent("browse_filter_removed", { ...properties, filter_type: change.type });
+    }
+    if (change.current) {
+      trackTmacsEvent("browse_filter_selected", { ...properties, filter_type: change.type });
+    }
+  });
+
+  if (previousWasActive && !currentIsActive) trackTmacsEvent("browse_reset", properties);
+  previousBrowseCriteria = { ...criteria };
+}
+
 function refresh(shouldClearSelection = false) {
   if (shouldClearSelection) {
     selectedMentorName = null;
     renderWelcomePanel();
   }
   resetResultsHeader();
-  render(applyFilters());
+  const search = document.getElementById("search").value.trim();
+  const criteria = {
+    searchUsed: search.length > 0,
+    specialty: document.getElementById("specialtyFilter").value,
+    focus: document.getElementById("focusFilter").value
+  };
+  const results = applyFilters();
+  const properties = currentBrowseAnalyticsProperties(criteria, search, results);
+  const analytics = tmacsAnalytics();
+  if (analytics && typeof analytics.trackBrowseViewOpened === "function") {
+    analytics.trackBrowseViewOpened();
+  }
+  trackBrowseCriteriaChanges(criteria, properties);
+  const wasBrowseVisible = browseResultsAreVisible;
+  render(results);
+  browseResultsAreVisible = true;
+
+  const resultSignature = browseResultStateSignature(criteria, search, results);
+  if (!wasBrowseVisible || resultSignature !== lastDisplayedBrowseResultSignature) {
+    lastDisplayedBrowseResultSignature = resultSignature;
+    trackTmacsEvent("browse_results_displayed", properties);
+    if (results.length === 0) trackTmacsEvent("empty_results_seen", properties);
+  }
 }
 
 function matchLabel(score) {

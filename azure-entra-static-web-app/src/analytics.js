@@ -39,7 +39,14 @@
     "match_results_displayed",
     "match_result_opened",
     "match_reset",
-    "no_match_results_seen"
+    "no_match_results_seen",
+    "browse_started",
+    "browse_filter_selected",
+    "browse_filter_removed",
+    "browse_search_used",
+    "browse_results_displayed",
+    "browse_reset",
+    "empty_results_seen"
   ]);
 
   var allowedTagValues = {
@@ -55,7 +62,9 @@
     result_count_band: new Set(["zero", "one_to_five", "six_to_ten", "eleven_plus"]),
     match_score_band: new Set(["under_50", "50_to_74", "75_to_99", "100"]),
     keyword_used: new Set(["yes", "no"]),
-    keyword_length_band: new Set(["none", "under_10", "10_to_24", "25_plus"])
+    keyword_length_band: new Set(["none", "under_10", "10_to_24", "25_plus"]),
+    search_used: new Set(["yes", "no"]),
+    search_length_band: new Set(["none", "under_10", "10_to_24", "25_plus"])
   };
 
   function normalizeToken(value) {
@@ -275,11 +284,16 @@
       trackEvent(eventByMode[mode]);
     };
     if (mode === "match") once("match_view_opened", emitViewEvent);
+    else if (mode === "browse") once("browse_view_opened", emitViewEvent);
     else emitViewEvent();
   }
 
   function trackMatchViewOpened() {
     trackViewOpened("match");
+  }
+
+  function trackBrowseViewOpened() {
+    trackViewOpened("browse");
   }
 
   function initializeAnalytics() {
@@ -364,6 +378,7 @@
     trackEvent: trackEvent,
     setAnalyticsTag: setAnalyticsTag,
     trackMatchViewOpened: trackMatchViewOpened,
+    trackBrowseViewOpened: trackBrowseViewOpened,
     trackMentorProfileOpened: trackMentorProfileOpened,
     trackMentorProfileClosed: trackMentorProfileClosed,
     observeMentorProfileSections: observeMentorProfileSections

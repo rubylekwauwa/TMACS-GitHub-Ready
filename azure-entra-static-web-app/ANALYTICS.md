@@ -28,7 +28,7 @@ The public landing page loads the module before its desktop redirect so the land
 | `map_view_opened` | The authenticated app opens or is initially requested in Map view. |
 | `tour_view_opened` | The authenticated app opens or is initially requested in Tour/Guide view. |
 
-Map-region, browse-filtering, and tour-step events remain deferred. Phase 3A covers mentor engagement and scheduling; Phase 3B covers only the matching journey.
+Map-region and tour-step events remain deferred. Phase 3A covers mentor engagement and scheduling, Phase 3B covers matching, and Phase 3C covers Browse search and filtering.
 
 ## Phase 3A mentor engagement and scheduling registry
 
@@ -69,6 +69,23 @@ Definitions:
 - **Completed:** scoring and sorting returned the final ranked array without throwing.
 - **Results displayed:** the existing result renderer and match-result header completed for a result signature not already displayed.
 
+## Phase 3C Browse, search, and filtering registry
+
+Browse analytics are emitted from the existing `refresh()` pipeline after `applyFilters()` returns. No additional search-input, filter-control, or mobile-navigation listeners are added.
+
+| Event | Trigger | Safe dimensions | Deduplication rule | Files involved |
+| --- | --- | --- | --- | --- |
+| `browse_view_opened` | Browse results first render, Browse navigation is selected, or an initial `?view=browse` is requested. | `selected_navigation_mode=browse` | Once per document. Programmatic and overlapping mobile paths converge on the same once-key. | `src/analytics.js`, `src/app/app.js` |
+| `browse_started` | Browse criteria transition from no active search/filters to at least one active criterion. | `active_filter_count_band`, `result_count_band`, `search_used`, `search_length_band` | Once per active Browse cycle. A later complete reset permits a new cycle. | `src/app/app.js` |
+| `browse_filter_selected` | A submitted predefined Specialty or Focus filter changes from empty to selected; replacing a selection emits remove then select. | `filter_type`, `active_filter_count_band`, `result_count_band` | Once per changed filter type in the core refresh. Filter values are not transmitted. | `src/app/app.js` |
+| `browse_filter_removed` | A previously active predefined Specialty or Focus filter is cleared or replaced. | `filter_type`, `active_filter_count_band`, `result_count_band` | Once per changed filter type in the core refresh. Duplicate mobile refreshes see unchanged state and do not repeat it. | `src/app/app.js` |
+| `browse_search_used` | Search transitions from empty to non-empty during a Browse cycle. | `search_used=yes`, `search_length_band`, `active_filter_count_band`, `result_count_band` | Once per non-empty search cycle. Editing an already non-empty search does not repeat this event. | `src/app/app.js` |
+| `browse_results_displayed` | The existing Browse renderer completes for a result state not currently displayed. | `active_filter_count_band`, `result_count_band`, `search_used`, `search_length_band` | Once per distinct local result-state signature, or when Browse replaces Match results. The signature uses active filter types, a length band, and ordered opaque mentor IDs; it is never transmitted. | `src/app/app.js` |
+| `browse_reset` | Previously active Browse criteria transition to all fields clear. | `active_filter_count_band=zero`, `result_count_band`, `search_used=no`, `search_length_band=none` | Once per active-to-clear transition. | `src/app/app.js` |
+| `empty_results_seen` | The existing Browse renderer actually presents zero mentors. | `active_filter_count_band`, `result_count_band=zero`, `search_used`, `search_length_band` | Once per distinct empty result state. Repeated mobile refreshes of the same empty state are ignored. | `src/app/app.js` |
+
+For Phase 3C, **reset** means all Browse fields transitioned from at least one active criterion to clear. There is no dedicated desktop Browse reset control. This definition covers manually clearing the final field and existing navigation-driven mobile resets; initial page load with already-empty fields is not a reset.
+
 ## Custom tags
 
 | Tag | Allowed values |
@@ -88,6 +105,8 @@ Definitions:
 | `match_score_band` | `under_50`, `50_to_74`, `75_to_99`, `100` |
 | `keyword_used` | `yes`, `no` |
 | `keyword_length_band` | `none`, `under_10`, `10_to_24`, `25_plus` |
+| `search_used` | `yes`, `no` |
+| `search_length_band` | `none`, `under_10`, `10_to_24`, `25_plus` |
 
 First-time/returning status uses only a local `localStorage` flag. It does not identify a person and is not tied to Yale authentication.
 
@@ -98,12 +117,14 @@ Phase 2 establishes these funnel foundations:
 1. `landing_page_viewed` → `yale_sign_in_clicked` → `app_loaded`
 2. `app_loaded` → Match/Browse/Map/Tour navigation → corresponding `*_view_opened` event
 
-Phase 3A supports `mentor_card_clicked` to `mentor_profile_opened` to `scheduling_option_clicked`, and `mentor_profile_opened` to `scheduling_intent_reached`. Phase 3B adds `match_view_opened` to `match_started` to `match_completed` to `match_results_displayed` to `match_result_opened`. Browse filtering and full tour funnels remain deferred.
+Phase 3A supports `mentor_card_clicked` to `mentor_profile_opened` to `scheduling_option_clicked`, and `mentor_profile_opened` to `scheduling_intent_reached`. Phase 3B adds `match_view_opened` to `match_started` to `match_completed` to `match_results_displayed` to `match_result_opened`. Phase 3C adds `browse_view_opened` to `browse_started` or `browse_search_used` to `browse_results_displayed` to `mentor_profile_opened`. Full tour funnels remain deferred.
 
 ## Privacy protections
 
 - No Yale NetID, identity claim, name, email address, mentor biography, scheduling URL, or search value is sent.
 - Matching keywords are reduced to `keyword_used` and a broad character-length band. Keyword content is never passed to the analytics module or used in the local result-set signature.
+- Browse searches are reduced to `search_used` and a broad character-length band. Search content, names, cities, and locations are never passed to analytics or stored in the result-state signature.
+- Specialty and Focus values remain local comparison state. Only the nonsensitive filter type is transmitted, including for identity or lived-experience selections.
 - Mentor records are not altered with analytics fields. A separate local lookup maps existing names to stable opaque IDs; only the opaque ID passes the analytics allowlist.
 - Event and tag inputs are normalized to short lowercase tokens.
 - Unknown event names, tag names, and tag values are rejected.
