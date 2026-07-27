@@ -5,6 +5,17 @@ mapboxgl.accessToken = "pk.eyJ1IjoicnVieWxla3dhdXdhIiwiYSI6ImNtcTE3bHFoMzBlOTYyc
 const TMACS_BOOKING_LINK =
   "https://outlook.office.com/book/TMACS11SummerMentorship@yale.edu/?ismsaljsauthenabled";
 
+const DISABLE_EXTERNAL_CONTACT_LINKS =
+  window.TMACS_CONFIG?.DISABLE_EXTERNAL_CONTACT_LINKS === true;
+
+if (DISABLE_EXTERNAL_CONTACT_LINKS) {
+  const mapAccessNote = document.querySelector(".map-access-note");
+  if (mapAccessNote) {
+    mapAccessNote.innerHTML =
+      "<strong>💡 Tip:</strong> Explore mentors visually on the interactive map or browse the searchable mentor list by specialty, location, or mentorship interest. Both provide access to the same mentor profiles.";
+  }
+}
+
 const mentors = [
   {
     name: "Arjune Rama, MD",
@@ -438,6 +449,8 @@ function buildMentorEmailLink(m) {
 }
 
 function bookingMarkup(m) {
+  if (DISABLE_EXTERNAL_CONTACT_LINKS) return "";
+
   const analyticsId = mentorAnalyticsId(m);
   if (m.bookingType === "email" && m.email) {
     return `
@@ -467,6 +480,22 @@ function bookingMarkup(m) {
   `;
 }
 
+function availabilityText(m) {
+  if (!DISABLE_EXTERNAL_CONTACT_LINKS) {
+    return m.availability || "Availability pending.";
+  }
+
+  const contactSafeAvailability = {
+    "uche.aneni@yale.edu": "Available in Connecticut during the summer.",
+    "guillermo.valdes@guillermovaldesmd.com": "Availability to be arranged.",
+    "beth.grunschel@yale.edu": "Availability to be confirmed.",
+    "kaosoluchi.enendu@yale.edu": "Available August 1 onward.",
+    "time4mh@ualberta.ca": "Available for a 30-minute session during July or August."
+  };
+
+  return contactSafeAvailability[m.email] || m.availability || "Availability pending.";
+}
+
 
 function renderWelcomePanel() {
   const analytics = tmacsAnalytics();
@@ -489,13 +518,17 @@ function renderWelcomePanel() {
       <div class="welcome-step" id="welcomeStep2">
         <span class="step-number">2</span>
         <div>
-          <strong>Schedule</strong>
-          <p>Use your mentor's preferred scheduling option to find a time to connect.</p>
-          <div class="schedule-preview" id="schedulePreview" aria-hidden="true">
-            <strong>Scheduling appears in each mentor profile</strong>
-            After you select a mentor, scroll to their preferred contact option to find a time to connect.
-            <span class="preview-button">📅 Schedule Through T-MACS →</span>
-          </div>
+          <strong>${DISABLE_EXTERNAL_CONTACT_LINKS ? "Learn" : "Schedule"}</strong>
+          <p>${DISABLE_EXTERNAL_CONTACT_LINKS
+            ? "Review each mentor's background, focus areas, and availability."
+            : "Use your mentor's preferred scheduling option to find a time to connect."}</p>
+          ${DISABLE_EXTERNAL_CONTACT_LINKS ? "" : `
+            <div class="schedule-preview" id="schedulePreview" aria-hidden="true">
+              <strong>Scheduling appears in each mentor profile</strong>
+              After you select a mentor, scroll to their preferred contact option to find a time to connect.
+              <span class="preview-button">📅 Schedule Through T-MACS →</span>
+            </div>
+          `}
         </div>
       </div>
 
@@ -513,7 +546,7 @@ function renderWelcomePanel() {
 
       <div class="ready-box">
         <strong>Ready to get started?</strong>
-        <p>Select any mentor from the list or map to view their full profile. The searchable list and interactive map provide access to the same mentor profiles and scheduling options.</p>
+        <p>Select any mentor from the list or map to view their full profile. The searchable list and interactive map provide access to the same mentor profiles${DISABLE_EXTERNAL_CONTACT_LINKS ? "." : " and scheduling options."}</p>
         <button class="voice-tour-button" type="button" onclick="runWelcomeTourPreview(true, true)">▶ Start Tour with Voice</button>
         <button class="replay-tour-button" type="button" onclick="runWelcomeTourPreview(true, false)">⏵ Replay Tour</button>
         <p class="tour-audio-note" id="tourAudioNote">Voice starts after you press the voice tour button.</p>
@@ -723,7 +756,7 @@ function showMentor(m) {
     <p>${m.fullBio}</p>
 
     <div class="detail-heading" data-profile-section="availability">Availability</div>
-    <p>${m.availability || "Availability pending."}</p>
+    <p>${availabilityText(m)}</p>
 
     ${bookingMarkup(m)}
 

@@ -21,6 +21,14 @@ jobs:
           submodules: true
           lfs: false
 
+      - name: Disable external mentor contact links
+        env:
+          DISABLE_EXTERNAL_CONTACT_LINKS: "true"
+        run: |
+          cat > azure-entra-static-web-app/src/app/feature-flags.js <<EOF
+          window.TMACS_CONFIG = { DISABLE_EXTERNAL_CONTACT_LINKS: ${DISABLE_EXTERNAL_CONTACT_LINKS} };
+          EOF
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
