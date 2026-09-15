@@ -85,7 +85,7 @@ link: ""
   fullBio: "I am an adult and addiction psychiatrist who now works primarily as a healthcare administrator, serving as Chief Medical Officer for a group of outpatient clinics. Our clinics provide care for children and adolescents, individuals with eating disorders and addictions, and people with a broad range of mental health needs. In addition to developing policies and procedures, I provide clinical coverage across these specialty areas for approximately half of the year.<br><br>I am especially interested in mentoring residents around leadership, recruitment, career transitions, financial literacy, culturally responsive care, and balancing professional and personal responsibilities. Outside of work, I am a married father of two, an avid Brazilian jiu-jitsu practitioner, and a regular at the gym.",
   availability: "Availability to be arranged with interested residents.",
   bookingType: "tmacs",
-  image: "image: "nedson-campbell.jpg",
+  image: "nedson-campbell.jpg",
   link: "https://www.linkedin.com/in/nedson-campbell-9b7787106/"
 },
 {
