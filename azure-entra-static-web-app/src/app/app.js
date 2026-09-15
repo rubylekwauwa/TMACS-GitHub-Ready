@@ -43,6 +43,51 @@ email: "uche.aneni@yale.edu",
 image: "https://lirp.cdn-website.com/8130e6b2/import/clib/fhchc_org/dms3rep/multi/opt/Kammarauche-Asuzu-975x1218-1920w.jpeg",
 link: ""
   },
+  {
+  name: "Nedson Campbell, MD",
+  city: "Philadelphia, PA",
+  coords: [-75.1652, 39.9526],
+  specialties: [
+    "Addiction psychiatry",
+    "Leadership and administrative psychiatry"
+  ],
+  focusAreas: [
+    "Leadership",
+    "Career transitions",
+    "Work-life integration",
+    "Identity/lived experience",
+    "Financial literacy",
+    "Culturally responsive care",
+    "Family life/parenting as a psychiatrist"
+  ],
+  careerPaths: [
+    "Healthcare administration",
+    "Clinical leadership",
+    "Addiction psychiatry"
+  ],
+  keywords: [
+    "Chief Medical Officer",
+    "healthcare administration",
+    "outpatient psychiatry",
+    "recruitment",
+    "leadership",
+    "policy development",
+    "addiction psychiatry",
+    "work-life balance",
+    "financial literacy",
+    "culturally responsive care",
+    "parenting",
+    "Brazilian jiu-jitsu",
+    "BJJ",
+    "Philadelphia"
+  ],
+  shortBlurb: "Psychiatrist and Chief Medical Officer with expertise in addiction psychiatry, clinical leadership, recruitment, and building a sustainable work-life balance.",
+  fullBio: "I am an adult and addiction psychiatrist who now works primarily as a healthcare administrator, serving as Chief Medical Officer for a group of outpatient clinics. Our clinics provide care for children and adolescents, individuals with eating disorders and addictions, and people with a broad range of mental health needs. In addition to developing policies and procedures, I provide clinical coverage across these specialty areas for approximately half of the year.<br><br>I am especially interested in mentoring residents around leadership, recruitment, career transitions, financial literacy, culturally responsive care, and balancing professional and personal responsibilities. Outside of work, I am a married father of two, an avid Brazilian jiu-jitsu practitioner, and a regular at the gym.",
+  availability: "Availability to be arranged with interested residents.",
+  bookingType: "tmacs",
+  image: "image: "nedson-campbell.jpg",
+  link: "https://www.linkedin.com/in/nedson-campbell-9b7787106/"
+},
 {
     name: "Gwendolyn Lopez-Cohen, MD",
     city: "Westport, CT",
@@ -361,6 +406,7 @@ const MENTOR_ANALYTICS_IDS = new Map([
   ["Taiwo Alonge, MD", "mentor_018"],
   ["Andi Diaz Stransky, MD", "mentor_019"],
   ["Kia Sayers, MD", "mentor_020"],
+  ["Nedson Campbell, MD", "mentor_022"],
   ["Ish Bhalla, MD", "mentor_021"]
 ]);
 
