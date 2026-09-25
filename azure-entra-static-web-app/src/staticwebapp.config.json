@@ -22,11 +22,12 @@
       "redirect": "/.auth/login/aad"
     }
   },
-  "globalHeaders": {
-    "Cache-Control": "no-cache",
-    "X-Content-Type-Options": "nosniff",
-    "Referrer-Policy": "strict-origin-when-cross-origin"
-  },
+"globalHeaders": {
+  "Cache-Control": "no-cache",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Strict-Transport-Security": "max-age=10886400"
+},
   "mimeTypes": {
     ".mp3": "audio/mpeg",
     ".png": "image/png"
